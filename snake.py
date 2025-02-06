@@ -21,6 +21,8 @@ def main():
     args: argparse.Namespace = util_function.define_args()
     board: environ.Board = environ.Board(size=args.boardsize)
     print(board.board)
+    print(board.snake)
+    print(board._direction)
 
 
 if __name__ == '__main__':
