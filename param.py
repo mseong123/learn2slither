@@ -19,12 +19,11 @@ class State(Enum):
 
 
 class Reward(Enum):
-    WALL = -10
     R_APPLE = -7
     G_APPLE = 7
-    TAIL = -10
-    NULL_LENGTH = -10
+    GAME_OVER = -10
     SPACE = -1
+    ILLEGAL_MOVE = -1000000
 
 
 class Direction(Enum):

@@ -22,7 +22,6 @@ def main():
     board: environ.Board = environ.Board(size=args.boardsize)
     print(board.board)
     print(board.snake)
-    print(board._direction)
 
 
 if __name__ == '__main__':
