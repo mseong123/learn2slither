@@ -28,8 +28,8 @@ def define_args() -> argparse.Namespace:
         "flag to toggle step by step mode(space key)."
     ))
     parser.add_argument("--boardsize", default=10, type=int, help=(
-        "board size.\n"
-        "default = 10 grid (not including walls)"
+        "board size (not including walls). Min size = 10\n"
+        "default = 10 grid"
     ))
     return parser.parse_args()
 

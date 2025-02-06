@@ -3,6 +3,7 @@ import argparse
 import pygame
 import util_function
 import param
+import environ
 
 
 def init_gui():
@@ -17,7 +18,9 @@ def init_gui():
 def main():
     '''main function'''
     # init_gui()
-    args:argparse.Namespace = util_function.define_args()
+    args: argparse.Namespace = util_function.define_args()
+    board: environ.Board = environ.Board(size=args.boardsize)
+    print(board.board)
 
 
 if __name__ == '__main__':
