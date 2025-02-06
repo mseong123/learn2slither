@@ -18,7 +18,7 @@ class Board():
         self._length: int = 3
         self._duration: int = 0
 
-        self.reset_board 
+        self.reset_board() 
 
 
 
@@ -74,8 +74,8 @@ class Board():
     def _create_snake(self) -> None:
         '''generate random snake position in board.'''
         # allow 3 spaces from edge of board for wall and tail of snake(2)
-        rand_row_pos: int = random.randint(3, self._size - 3)
-        rand_col_pos: int = random.randint(3, self._size - 3)
+        rand_row_pos: int = random.randint(3, self._size - 4)
+        rand_col_pos: int = random.randint(3, self._size - 4)
         # append snake head
         self._snake.append((rand_row_pos, rand_col_pos))
         # append 2 snake tails 
@@ -287,24 +287,48 @@ class Board():
                 if snake_visible == 0:
                     state.append(0)
         return state
-    
+
     def get_initial_state(self) -> list:
         '''return initial state before first move by snake'''
         return self._get_state()
 
-    def move_snake(self, next_direction: int) -> list:
+    def _amend_snake(self, next_direction: int, action: str) -> None:
+        '''amend snake list of tuple positions'''
+        next_row, next_col = self._get_next_pos(next_direction)
+        if action == "lengthen": 
+            temp_snake: list = self._snake.copy()
+            self._snake: list = [(next_row, next_col), *temp_snake]
+        elif action == "shorten":
+            self._snake.pop()
+            self._snake.pop()
+            temp_snake: list = self._snake.copy()
+            self._snake: list = [(next_row, next_col), *temp_snake]
+        else:
+            self._snake.pop()
+            temp_snake: list = self._snake.copy()
+            self._snake: list = [(next_row, next_col), *temp_snake]
+
+    def move(self, next_direction: int) -> list:
         '''function to change state of board upon a direction move and return
         a list of state values to agent'''
         # return value is a list to be included in agent's replay buffer
         # [direction, reward, new state after direction, terminal move bool]
         if self._check_illegal(next_direction) is True:
             self.reset_board()
-            return [next_direction, param.Reward.ILLEGAL_MOVE.value, [], True]
+            return [next_direction, param.Reward.ILLEGAL_MOVE.value, True, []]
         if self._check_died(next_direction) is True:
             self.reset_board()
-            return [next_direction, param.Reward.GAME_OVER.value, [], True]
+            return [next_direction, param.Reward.GAME_OVER.value, True, []]
         if self._check_green_apple(next_direction) is True:
-            
-            return [next_direction, param.Reward]
+            self._amend_snake(next_direction, "lengthen")
+            self._create_apple(param.State.G_APPLE.value)
+            return [next_direction, param.Reward.G_APPLE, False,
+                    *self._get_state()]
+        if self._check_red_apple(next_direction) is True:
+            self._amend_snake(next_direction, "shorten")
+            self._create_apple(param.State.R_APPLE.value)
+            return [next_direction, param.Reward.R_APPLE, False,
+                    *self._get_state()]
+        self._amend_snake(next_direction, "move")
         
 

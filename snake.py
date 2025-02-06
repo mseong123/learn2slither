@@ -19,6 +19,9 @@ def main():
     '''main function'''
     # init_gui()
     args: argparse.Namespace = util_function.define_args()
+    if (args.boardsize < 5):
+        print("Board size too small. Minimum = 5 grid")
+        return
     board: environ.Board = environ.Board(size=args.boardsize)
     print(board.board)
     print(board.snake)
