@@ -94,7 +94,7 @@ def draw_snake(screen: pygame.Surface, snake: list) -> None:
                              border_radius=5)
 
 
-def event_handler(board: environ.Board, step_button) -> bool:
+def event_handler(board: environ.Board, buttons) -> bool:
     '''pygame event handler'''
     for event in pygame.event.get():
         # if window is closed
@@ -113,8 +113,13 @@ def event_handler(board: environ.Board, step_button) -> bool:
             elif event.key == pygame.K_RIGHT:
                 board.move(3)
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if step_button.collidepoint(event.pos): 
-                print("Button Clicked!")
+            # step_button
+            if buttons[0] is not None and buttons[0].collidepoint(event.pos):
+                print("Button[0] Clicked!")
+            elif buttons[1].collidepoint(event.pos):
+                print("Button[1] Clicked!")
+            elif buttons[2].collidepoint(event.pos):
+                print("Button[2] Clicked!")
     return True
 
 def draw_metric(screen: pygame.Surface, metric: dict,
@@ -135,28 +140,59 @@ def draw_metric(screen: pygame.Surface, metric: dict,
         rect = text.get_rect(topleft=(pixel_size +
                                       (param.CELL_SIZE *
                                        param.EDGE_OFFSET * 2),
-                                      param.CELL_SIZE +
+                                      param.CELL_SIZE + 2 +
                                       (param.TEXT_SIZE * (index + 1))))
         screen.blit(text, rect)
 
 def draw_button(screen: pygame.Surface, args:argparse.Namespace, metric: dict,
                 pixel_size: int):
     '''draw buttons for interactions'''
+    step_button = None
+    up_button = pygame.Rect(pixel_size +
+                            (param.CELL_SIZE *
+                             param.EDGE_OFFSET * 2),
+                            param.CELL_SIZE * 9,
+                            param.BUTTON_WIDTH * 1.5, param.BUTTON_HEIGHT) 
+    pygame.draw.rect(screen, param.ORANGE, up_button, border_radius=5)
+    font = pygame.font.Font(None, param.HEADER_SIZE - 4)
+    up_font = font.render("Speed UP", True, param.DARK_BLUE)
+    up_font_rect = up_font.get_rect(topleft=(pixel_size +
+                                             (param.CELL_SIZE *
+                                              param.EDGE_OFFSET * 2) + 10,
+                                             param.CELL_SIZE * 9.5))
+    screen.blit(up_font, up_font_rect)
+
+    down_button = pygame.Rect(pixel_size +
+                            (param.CELL_SIZE *
+                             param.EDGE_OFFSET * 2),
+                            param.CELL_SIZE * 11,
+                            param.BUTTON_WIDTH * 1.5, param.BUTTON_HEIGHT) 
+    pygame.draw.rect(screen, param.ORANGE, down_button, border_radius=5)
+    font = pygame.font.Font(None, param.HEADER_SIZE - 4)
+    down_font = font.render("Slow DOWN", True, param.DARK_BLUE)
+    down_font_rect = down_font.get_rect(topleft=(pixel_size +
+                                             (param.CELL_SIZE *
+                                              param.EDGE_OFFSET * 2) + 10,
+                                             param.CELL_SIZE * 11.5))
+    screen.blit(down_font, down_font_rect)
+
     if args.step_by_step is True:
-        step_button = pygame.Rect(0, 0,
-                                  param.BUTTON_WIDTH, param.BUTTON_HEIGHT)
-        step_button.bottomleft = (pixel_size + (param.CELL_SIZE *
-                                                param.EDGE_OFFSET * 2),
-                                  param.CELL_SIZE * 9)
-        pygame.draw.rect(screen, param.ORANGE, step_button, border_radius=5)
+        step_button = pygame.Rect(pixel_size +
+                                  (param.CELL_SIZE *
+                                   param.EDGE_OFFSET * 2),
+                                  param.CELL_SIZE * 7,
+                                  param.BUTTON_WIDTH, param.BUTTON_HEIGHT) 
+        pygame.draw.rect(screen, param.GREEN, step_button, border_radius=5)
         font = pygame.font.Font(None, param.HEADER_SIZE - 4)
         step_font = font.render("Next Step", True, param.DARK_BLUE)
-        step_font_rect = step_font.get_rect(bottomleft=(pixel_size +
+        step_font_rect = step_font.get_rect(topleft=(pixel_size +
                                             (param.CELL_SIZE *
-                                              param.EDGE_OFFSET * 2) + 10,
-                                            param.CELL_SIZE * 8.5))
-        screen.blit(step_font, step_font_rect)
-        return step_button
+                                             param.EDGE_OFFSET * 2) + 10,
+                                            param.CELL_SIZE * 7.5))
+        screen.blit(step_font, step_font_rect)         
+    return (step_button, up_button, down_button)
+
+
 
 
 
@@ -178,8 +214,8 @@ def init_gui(board: environ.Board, args:argparse.Namespace, metric: dict):
         draw_board(screen, board)
         draw_snake(screen, board.snake)
         draw_metric(screen, metric, pixel_size)
-        step_button = draw_button(screen, args, metric, pixel_size)
-        running = event_handler(board, step_button)
+        buttons = draw_button(screen, args, metric, pixel_size)
+        running = event_handler(board, buttons)
         pygame.display.flip()
     # explicitly clean up resources once loop ends (ie close window)
     pygame.quit()

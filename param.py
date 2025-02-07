@@ -6,7 +6,7 @@ from enum import Enum
 SCREEN_WIDTH: int = 800
 SCREEN_HEIGHT: int = 600
 CELL_SIZE: int = 30
-BUTTON_HEIGHT: int = CELL_SIZE * 2
+BUTTON_HEIGHT: int = CELL_SIZE * 1.5
 BUTTON_WIDTH: int = CELL_SIZE * 4
 GREEN: tuple = (0, 255, 0)
 RED: tuple = (255, 0, 0)
