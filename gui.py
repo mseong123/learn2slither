@@ -93,9 +93,8 @@ def draw_snake(screen: pygame.Surface, snake: list) -> None:
                                param.CELL_SIZE),
                              border_radius=5)
 
-                
-           
-def event_handler(board: environ.Board) -> bool:
+
+def event_handler(board: environ.Board, step_button) -> bool:
     '''pygame event handler'''
     for event in pygame.event.get():
         # if window is closed
@@ -113,11 +112,56 @@ def event_handler(board: environ.Board) -> bool:
                 board.move(2)
             elif event.key == pygame.K_RIGHT:
                 board.move(3)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if step_button.collidepoint(event.pos): 
+                print("Button Clicked!")
     return True
 
+def draw_metric(screen: pygame.Surface, metric: dict,
+                pixel_size: int) -> None:
+    '''render metrics and interface into gui'''
+    # draw header 
+    font = pygame.font.Font(None, param.HEADER_SIZE)
+    header = font.render("Metrics", True, param.DARK_BLUE)
+    header_rect = header.get_rect(topleft=(pixel_size +
+                                           (param.CELL_SIZE *
+                                            param.EDGE_OFFSET * 2),
+                                           param.CELL_SIZE))
+    screen.blit(header, header_rect)
+    # draw rest of metrics
+    for index, (key, value) in enumerate(metric.items()):
+        font = pygame.font.Font(None, param.TEXT_SIZE)
+        text = font.render(f"{key} : {value}", True, param.ORANGE)
+        rect = text.get_rect(topleft=(pixel_size +
+                                      (param.CELL_SIZE *
+                                       param.EDGE_OFFSET * 2),
+                                      param.CELL_SIZE +
+                                      (param.TEXT_SIZE * (index + 1))))
+        screen.blit(text, rect)
+
+def draw_button(screen: pygame.Surface, args:argparse.Namespace, metric: dict,
+                pixel_size: int):
+    '''draw buttons for interactions'''
+    if args.step_by_step is True:
+        step_button = pygame.Rect(0, 0,
+                                  param.BUTTON_WIDTH, param.BUTTON_HEIGHT)
+        step_button.bottomleft = (pixel_size + (param.CELL_SIZE *
+                                                param.EDGE_OFFSET * 2),
+                                  param.CELL_SIZE * 9)
+        pygame.draw.rect(screen, param.ORANGE, step_button, border_radius=5)
+        font = pygame.font.Font(None, param.HEADER_SIZE - 4)
+        step_font = font.render("Next Step", True, param.DARK_BLUE)
+        step_font_rect = step_font.get_rect(bottomleft=(pixel_size +
+                                            (param.CELL_SIZE *
+                                              param.EDGE_OFFSET * 2) + 10,
+                                            param.CELL_SIZE * 8.5))
+        screen.blit(step_font, step_font_rect)
+        return step_button
 
 
-def init_gui(board: environ.Board, args:argparse.Namespace):
+
+
+def init_gui(board: environ.Board, args:argparse.Namespace, metric: dict):
     '''function to init and run pygame loop'''
     pygame.init()
     pygame.display.set_caption("Snake Game")
@@ -131,9 +175,11 @@ def init_gui(board: environ.Board, args:argparse.Namespace):
     running: bool = True
     while running:
         screen.fill(param.GREY)
-        running = event_handler(board)
         draw_board(screen, board)
         draw_snake(screen, board.snake)
+        draw_metric(screen, metric, pixel_size)
+        step_button = draw_button(screen, args, metric, pixel_size)
+        running = event_handler(board, step_button)
         pygame.display.flip()
     # explicitly clean up resources once loop ends (ie close window)
     pygame.quit()

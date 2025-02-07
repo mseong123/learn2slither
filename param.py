@@ -6,15 +6,21 @@ from enum import Enum
 SCREEN_WIDTH: int = 800
 SCREEN_HEIGHT: int = 600
 CELL_SIZE: int = 30
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-DARK_BLUE = (0, 0, 139)
-BLACK = (0, 0, 0)
-GREY = (211, 211, 211)
-DARK_GREY = (169, 169, 169)
-EDGE_OFFSET = 1
-SIDE_OFFSET = 5
+BUTTON_HEIGHT: int = CELL_SIZE * 2
+BUTTON_WIDTH: int = CELL_SIZE * 4
+GREEN: tuple = (0, 255, 0)
+RED: tuple = (255, 0, 0)
+BLUE: tuple = (0, 0, 255)
+DARK_BLUE: tuple = (0, 0, 139)
+BLACK: tuple = (0, 0, 0)
+GREY: tuple = (211, 211, 211)
+DARK_GREY: tuple = (169, 169, 169)
+ORANGE: tuple = (255, 140, 0)
+EDGE_OFFSET: int = 1
+SIDE_OFFSET: int = 10
+HEADER_SIZE: int = 36
+TEXT_SIZE: int = 24
+PADDING: int = 4
 
 
 

@@ -42,13 +42,23 @@ def define_args() -> argparse.Namespace:
 
 def main():
     '''main function to run program'''
+    # initialize variables to store program metrics
+    metric:dict = {
+        "max_length": 3,
+        "max_duration": 0,
+        "curr_length": 3,
+        "curr_duration": 0,
+        "session": 1,
+        "speed": 1
+    }
+
     args: argparse.Namespace = define_args()
     if (args.boardsize < 5):
         print("Board size too small. Minimum = 5 grid")
         return
     board: environ.Board = environ.Board(size=args.boardsize)
     if args.visual == 'on':
-        gui.init_gui(board, args)
+        gui.init_gui(board, args, metric)
 
 
 
