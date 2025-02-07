@@ -48,7 +48,7 @@ def main():
         return
     board: environ.Board = environ.Board(size=args.boardsize)
     if args.visual == 'on':
-        gui.init_gui(board)
+        gui.init_gui(board, args)
 
 
 

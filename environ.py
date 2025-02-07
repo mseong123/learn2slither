@@ -232,7 +232,7 @@ class Board():
             # LEFT
             if i == 2:
                 # Distance to wall
-                state.append(self._snake[0][1] / self._size)
+                state.append((self._snake[0][1]) / self._size)
                 # Distance to first green apple
                 g_apple_visible: int = 0
                 for j in range(self._snake[0][1] - 1, 0, -1):
@@ -263,7 +263,7 @@ class Board():
                 if snake_visible == 0:
                     state.append(0)
             # RIGHT
-            if i == 1:
+            if i == 3:
                 # Distance to wall
                 state.append((len(self._board[0]) - 1 - self._snake[0][1])
                              / self._size)
@@ -280,7 +280,7 @@ class Board():
                 # Distance to first red apple
                 r_apple_visible: int = 0
                 for j in range(self._snake[0][1] + 1, len(self._board[0]) - 1):
-                    if self._board[self._snake[0][1]][j] ==\
+                    if self._board[self._snake[0][0]][j] ==\
                             param.State.R_APPLE.value:
                         state.append((j - self._snake[0][1]) / self._size)
                         r_apple_visible = 1
@@ -372,6 +372,6 @@ class Board():
             self._direction = next_direction
             print(f"\n{param.Direction(next_direction).name}\n")
         self._print_state()
-        return [next_direction, reward, fatal,
-                *self._get_state()]
+        print([next_direction, reward, fatal,
+               *self._get_state()])
 

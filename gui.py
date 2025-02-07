@@ -1,5 +1,6 @@
 '''functions to run pygame GUI'''
 
+import argparse
 import pygame
 import environ
 import param
@@ -74,7 +75,7 @@ def draw_board(screen: pygame.Surface, board: environ.Board) -> None:
                                   param.CELL_SIZE),
                                  border_radius=5)
 
-def draw_snake(screen: pygame.Surface, snake:list) -> None:
+def draw_snake(screen: pygame.Surface, snake: list) -> None:
     '''draw snake'''
     for index_snake, snake in enumerate(snake):
         if index_snake == 0:
@@ -116,13 +117,12 @@ def event_handler(board: environ.Board) -> bool:
 
 
 
-def init_gui(board: environ.Board):
+def init_gui(board: environ.Board, args:argparse.Namespace):
     '''function to init and run pygame loop'''
     pygame.init()
     pygame.display.set_caption("Snake Game")
     clock = pygame.time.Clock()
     pixel_size: int = board.size * param.CELL_SIZE
-    
     screen: pygame.Surface = pygame.display.\
         set_mode(size=(pixel_size + (param.CELL_SIZE * param.SIDE_OFFSET),
                        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)),
