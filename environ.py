@@ -17,8 +17,9 @@ class Board():
         self._state: list = []
         self._length: int = 3
         self._duration: int = 0
-
-        self.reset_board() 
+        self.reset_board()
+        print("\nGAME START\n")
+        self._print_state()
 
 
 
@@ -67,6 +68,7 @@ class Board():
          
     def _create_board(self) -> None:
         '''generate board(2D array) with walls and empty space'''
+        self._board: list = []
         for i in range(self._size):
             row: list = []
             for j in range(self._size):
@@ -79,6 +81,7 @@ class Board():
     
     def _create_snake(self) -> None:
         '''generate random snake position in board.'''
+        self._snake: list = []
         # allow 3 spaces from edge of board for wall and tail of snake(2)
         rand_row_pos: int = random.randint(3, self._size - 4)
         rand_col_pos: int = random.randint(3, self._size - 4)
@@ -117,23 +120,24 @@ class Board():
         if self._board[next_row][next_col] == param.State.WALL.value\
             or (self._board[next_row][next_col] == param.State.R_APPLE.value
                 and len(self._snake) == 1)\
-                or self._board[next_row][next_col] == param.State.TAIL.value:
+                or (next_row, next_col) in self._snake:
             return True
         return False
 
     def _check_illegal(self, next_direction: int) -> bool:
         '''function to check for illegal move'''
         # if current direction is up and next direction is down,
-        # return True
-        if (self._direction == param.Direction.UP.value and
-                next_direction == param.Direction.DOWN.value) or\
-            (self._direction == param.Direction.DOWN.value and
-                next_direction == param.Direction.UP.value) or\
-            (self._direction == param.Direction.LEFT.value and
-                next_direction == param.Direction.RIGHT.value) or\
-            (self._direction == param.Direction.RIGHT.value and
-                next_direction == param.Direction.LEFT.value):
-            return True
+        # and length of snake > 1, return True
+        if len(self._snake) > 1:
+            if (self._direction == param.Direction.UP.value and
+                    next_direction == param.Direction.DOWN.value) or\
+                (self._direction == param.Direction.DOWN.value and
+                    next_direction == param.Direction.UP.value) or\
+                (self._direction == param.Direction.LEFT.value and
+                    next_direction == param.Direction.RIGHT.value) or\
+                (self._direction == param.Direction.RIGHT.value and
+                    next_direction == param.Direction.LEFT.value):
+                return True
         return False
     
     def _check_green_apple(self, next_direction: int) -> bool:
@@ -295,9 +299,7 @@ class Board():
         return state
 
     def get_initial_state(self) -> list:
-        '''return initial state before first move by snake. 
-        Also print state to console'''
-        self._print_state()
+        '''return initial state before first move by snake.''' 
         return self._get_state()
 
     def _amend_snake(self, next_direction: int, action: str) -> None:
@@ -315,41 +317,61 @@ class Board():
             self._snake.pop()
             temp_snake: list = self._snake.copy()
             self._snake: list = [(next_row, next_col), *temp_snake]
+        # reset any food eaten to space
+        self._board[next_row][next_col] = param.State.SPACE.value
+        
 
     def _print_state(self) -> None:
         "print state to terminal"
-        for i in self._board:
-            for j in self._board[i]:
-                if self._snake[0][0] == i or self._snake[0][1] == j:
-                    if (i, j) in self._snake and (i, j) == self._snake[0]:
-                        print(param.State.HEAD.value)
-                    elif (i, j) in self._snake:
-                        print(param.State.TAIL.value)
+        for index_row, _ in enumerate(self._board):
+            state: str = ""
+            for index_col, col in enumerate(self._board[index_row]):
+                if self._snake[0][0] == index_row\
+                      or self._snake[0][1] == index_col:
+                    if (index_row, index_col) in self._snake\
+                          and (index_row, index_col) == self._snake[0]:
+                        state += param.State.HEAD.value
+                    elif (index_row, index_col) in self._snake:
+                        state += param.State.TAIL.value
                     else:
-                        print(self._board[i][j])
+                        state += col
+                else:
+                    state += " "
+            print(state)
+
 
     def move(self, next_direction: int) -> list:
         '''function to change state of board upon a direction move and return
         a list of state values to agent'''
         # return value is a list to be included in agent's replay buffer
         # [direction, reward, new state after direction, terminal move bool]
+        reward: int = 0
+        fatal: bool = False
         if self._check_illegal(next_direction) is True:
             self.reset_board()
-            return [next_direction, param.Reward.ILLEGAL_MOVE.value, True, []]
-        if self._check_died(next_direction) is True:
+            print("\nRESET BOARD\n")
+            reward = param.Reward.ILLEGAL_MOVE.value
+            fatal = True
+        elif self._check_died(next_direction) is True:
             self.reset_board()
-            return [next_direction, param.Reward.GAME_OVER.value, True, []]
-        if self._check_green_apple(next_direction) is True:
+            print("\nRESET BOARD\n")
+            reward = param.Reward.GAME_OVER.value
+            fatal = True
+        elif self._check_green_apple(next_direction) is True:
             self._amend_snake(next_direction, "lengthen")
             self._create_apple(param.State.G_APPLE.value)
-            return [next_direction, param.Reward.G_APPLE, False,
-                    *self._get_state()]
-        if self._check_red_apple(next_direction) is True:
+            reward = param.Reward.G_APPLE.value 
+        elif self._check_red_apple(next_direction) is True:
             self._amend_snake(next_direction, "shorten")
             self._create_apple(param.State.R_APPLE.value)
-            return [next_direction, param.Reward.R_APPLE, False,
-                    *self._get_state()]
-        self._amend_snake(next_direction, "move")
-
-        
+            reward = param.Reward.R_APPLE.value
+        else:
+            self._amend_snake(next_direction, "move")
+            reward = param.Reward.SPACE.value
+        if fatal is not True:
+            self._direction = next_direction
+            print(f"\n{param.Direction(next_direction).name}\n")
+        self._print_state()
+        return [next_direction, reward, fatal,
+                *self._get_state()]
 

@@ -94,7 +94,7 @@ def draw_snake(screen: pygame.Surface, snake:list) -> None:
 
                 
            
-def event_handler() -> bool:
+def event_handler(board: environ.Board) -> bool:
     '''pygame event handler'''
     for event in pygame.event.get():
         # if window is closed
@@ -103,6 +103,15 @@ def event_handler() -> bool:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 return False
+            # key events for debugging
+            if event.key == pygame.K_UP:
+                board.move(0)
+            elif event.key == pygame.K_DOWN:
+                board.move(1)
+            elif event.key == pygame.K_LEFT:
+                board.move(2)
+            elif event.key == pygame.K_RIGHT:
+                board.move(3)
     return True
 
 
@@ -122,11 +131,9 @@ def init_gui(board: environ.Board):
     running: bool = True
     while running:
         screen.fill(param.GREY)
-        running = event_handler()
-        
+        running = event_handler(board)
         draw_board(screen, board)
         draw_snake(screen, board.snake)
         pygame.display.flip()
-
     # explicitly clean up resources once loop ends (ie close window)
     pygame.quit()
