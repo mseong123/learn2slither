@@ -31,6 +31,11 @@ class Board():
     def snake(self) -> list:
         '''getter for snake attribute'''
         return self._snake
+    
+    @property
+    def size(self) -> int:
+        '''getter for board attribute'''
+        return self._size
 
     def reset_board(self) -> None:
         '''wrapper function to reset board and snake'''
@@ -65,7 +70,8 @@ class Board():
         for i in range(self._size):
             row: list = []
             for j in range(self._size):
-                if i == 0 or i == self._size - 1 or j == 0 or j == self._size - 1:
+                if i == 0 or i == self._size - 1 or j == 0 or\
+                    j == self._size - 1:
                     row.append(param.State.WALL.value)
                 else:
                     row.append(param.State.SPACE.value)
@@ -289,7 +295,9 @@ class Board():
         return state
 
     def get_initial_state(self) -> list:
-        '''return initial state before first move by snake'''
+        '''return initial state before first move by snake. 
+        Also print state to console'''
+        self._print_state()
         return self._get_state()
 
     def _amend_snake(self, next_direction: int, action: str) -> None:
@@ -307,6 +315,18 @@ class Board():
             self._snake.pop()
             temp_snake: list = self._snake.copy()
             self._snake: list = [(next_row, next_col), *temp_snake]
+
+    def _print_state(self) -> None:
+        "print state to terminal"
+        for i in self._board:
+            for j in self._board[i]:
+                if self._snake[0][0] == i or self._snake[0][1] == j:
+                    if (i, j) in self._snake and (i, j) == self._snake[0]:
+                        print(param.State.HEAD.value)
+                    elif (i, j) in self._snake:
+                        print(param.State.TAIL.value)
+                    else:
+                        print(self._board[i][j])
 
     def move(self, next_direction: int) -> list:
         '''function to change state of board upon a direction move and return
@@ -330,5 +350,6 @@ class Board():
             return [next_direction, param.Reward.R_APPLE, False,
                     *self._get_state()]
         self._amend_snake(next_direction, "move")
+
         
 

@@ -5,6 +5,16 @@ from enum import Enum
 # pygame parameters
 SCREEN_WIDTH: int = 800
 SCREEN_HEIGHT: int = 600
+CELL_SIZE: int = 30
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+GREY = (211, 211, 211)
+DARK_GREEN = (0, 100, 0)
+DARK_GREY = (169, 169, 169)
+
+
 
 # environment parameters
 

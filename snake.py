@@ -1,30 +1,57 @@
-'''main script to train and run model simulation'''
+'''main script to train and run model simulation with optional GUI implementation'''
+
 import argparse
 import pygame
-import util_function
 import param
 import environ
+import gui
+
+def define_args() -> argparse.Namespace:
+    """define arguments in command line"""
+    parser = argparse.ArgumentParser(
+        description="A reinforcement learning script for the training and\
+        simulation of a snake game.",
+        formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument("--visual",
+                        type=str, help=(
+        "enable GUI for snake game (on/off).")
+    )
+    parser.add_argument("--load", type=str, help=(
+        "file path (relative to root folder) of model to load from.")
+    )
+    parser.add_argument("--save", type=str, help=(
+        "file path (relative to root folder) to save model.")
+    )
+    parser.add_argument("--sessions", type=int, help=(
+        "no. of snake game simulations to run.")
+    )
+    parser.add_argument("--dontlearn", action="store_true", help=(
+        "flag to switch off learning."
+    ))
+    parser.add_argument("--step-by-step", action="store_true", help=(
+        "flag to toggle step by step mode(space key)."
+    ))
+    parser.add_argument("--boardsize", default=10, type=int, help=(
+        "board size (not including walls). Min size = 10\n"
+        "default = 10 grid"
+    ))
+    return parser.parse_args()
 
 
-def init_gui():
-    '''function to init pygame loop'''
-    pygame.init()
-    screen:pygame.Surface = pygame.display.\
-        set_mode(size=(param.SCREEN_WIDTH, param.SCREEN_HEIGHT), flags=pygame.RESIZABLE)
-    while True:
-        pygame.display.flip()
 
 
 def main():
-    '''main function'''
-    # init_gui()
-    args: argparse.Namespace = util_function.define_args()
+    '''main function to run program'''
+    args: argparse.Namespace = define_args()
     if (args.boardsize < 5):
         print("Board size too small. Minimum = 5 grid")
         return
     board: environ.Board = environ.Board(size=args.boardsize)
-    print(board.board)
-    print(board.snake)
+    if args.visual == 'on':
+        gui.init_gui(board)
+
+
+
 
 
 if __name__ == '__main__':
