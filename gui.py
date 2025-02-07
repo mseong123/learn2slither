@@ -9,53 +9,69 @@ def draw_wall(screen: pygame.Surface, board: environ.Board,
               index_row: int, index_col: int) -> None:
     '''sub function to draw wall with border radius'''
     if index_col == 0 and index_row == 0:
+        row: int = index_row + param.EDGE_OFFSET
+        col: int = index_col + param.EDGE_OFFSET
         pygame.draw.rect(screen, param.DARK_GREY,
-                         (index_col*param.CELL_SIZE,
-                          index_row*param.CELL_SIZE,
+                         (col*param.CELL_SIZE,
+                          row*param.CELL_SIZE,
                           param.CELL_SIZE,
                           param.CELL_SIZE),
                          border_top_left_radius=5)
     elif index_col == board.size - 1 and index_row == board.size - 1:
+        row: int = index_row + param.EDGE_OFFSET
+        col: int = index_col + param.EDGE_OFFSET
         pygame.draw.rect(screen, param.DARK_GREY,
-                         (index_col*param.CELL_SIZE,
-                          index_row*param.CELL_SIZE,
+                         (col*param.CELL_SIZE,
+                          row*param.CELL_SIZE,
                           param.CELL_SIZE,
                           param.CELL_SIZE),
-                         border_bottom_right_radius=5) 
+                         border_bottom_right_radius=5)
     elif index_col == 0 and index_row == board.size - 1:
+        row: int = index_row + param.EDGE_OFFSET
+        col: int = index_col + param.EDGE_OFFSET
         pygame.draw.rect(screen, param.DARK_GREY,
-                         (index_col*param.CELL_SIZE,
-                          index_row*param.CELL_SIZE,
+                         (col*param.CELL_SIZE,
+                          row*param.CELL_SIZE,
                           param.CELL_SIZE,
                           param.CELL_SIZE),
                          border_bottom_left_radius=5)
     elif index_col == board.size - 1 and index_row == 0:
+        row: int = index_row + param.EDGE_OFFSET
+        col: int = index_col + param.EDGE_OFFSET
         pygame.draw.rect(screen, param.DARK_GREY,
-                         (index_col*param.CELL_SIZE,
-                          index_row*param.CELL_SIZE,
+                         (col*param.CELL_SIZE,
+                          row*param.CELL_SIZE,
                           param.CELL_SIZE,
                           param.CELL_SIZE),
                          border_top_right_radius=5)
     else:
+        row: int = index_row + param.EDGE_OFFSET
+        col: int = index_col + param.EDGE_OFFSET
         pygame.draw.rect(screen, param.DARK_GREY,
-                         (index_col*param.CELL_SIZE,
-                          index_row*param.CELL_SIZE,
+                         (col*param.CELL_SIZE,
+                          row*param.CELL_SIZE,
                           param.CELL_SIZE,
                           param.CELL_SIZE))
-
-
-         
-                
-                    
+     
 def draw_board(screen: pygame.Surface, board: environ.Board) -> None:
     '''function to draw Wall, space, green/red apple'''
-    for index_row, row in enumerate(board.board):
+    for index_row, _ in enumerate(board.board):
         for index_col, col in enumerate(board.board[index_row]):
             if col == param.State.WALL.value:
                 draw_wall(screen, board, index_row, index_col)
                 
                 
            
+def event_handler() -> bool:
+    '''pygame event handler'''
+    for event in pygame.event.get():
+        # if window is closed
+        if event.type == pygame.QUIT:
+            return False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                return False
+    return True
 
 
 
@@ -67,17 +83,15 @@ def init_gui(board: environ.Board):
     pixel_size: int = board.size * param.CELL_SIZE
     
     screen: pygame.Surface = pygame.display.\
-        set_mode(size=(pixel_size + (param.CELL_SIZE * 2),
-                       pixel_size), flags=pygame.RESIZABLE)
+        set_mode(size=(pixel_size + (param.CELL_SIZE * param.SIDE_OFFSET),
+                       pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)),
+                 flags=pygame.RESIZABLE)
     pygame.display.set_caption("Snake Game")
-    clock = pygame.time.Clock()
     running: bool = True
     while running:
         screen.fill(param.GREY)
-        for event in pygame.event.get():
-            # if window is closed
-            if event.type == pygame.QUIT:
-                running = False
+        running = event_handler()
+        
         draw_board(screen, board)
         pygame.display.flip()
 
