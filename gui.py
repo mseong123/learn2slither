@@ -59,7 +59,39 @@ def draw_board(screen: pygame.Surface, board: environ.Board) -> None:
         for index_col, col in enumerate(board.board[index_row]):
             if col == param.State.WALL.value:
                 draw_wall(screen, board, index_row, index_col)
-                
+            elif col == param.State.G_APPLE.value:
+                pygame.draw.rect(screen, param.GREEN,
+                                 ((index_col + param.EDGE_OFFSET)*param.CELL_SIZE,
+                                  (index_row + param.EDGE_OFFSET)*param.CELL_SIZE,
+                                  param.CELL_SIZE,
+                                  param.CELL_SIZE),
+                                 border_radius=5)
+            elif col == param.State.R_APPLE.value:
+                pygame.draw.rect(screen, param.RED,
+                                 ((index_col + param.EDGE_OFFSET)*param.CELL_SIZE,
+                                  (index_row + param.EDGE_OFFSET)*param.CELL_SIZE,
+                                  param.CELL_SIZE,
+                                  param.CELL_SIZE),
+                                 border_radius=5)
+
+def draw_snake(screen: pygame.Surface, snake:list) -> None:
+    '''draw snake'''
+    for index_snake, snake in enumerate(snake):
+        if index_snake == 0:
+            pygame.draw.rect(screen, param.DARK_BLUE,
+                             ((snake[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                              (snake[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                               param.CELL_SIZE,
+                               param.CELL_SIZE),
+                             border_radius=5)
+        else:
+            pygame.draw.rect(screen, param.BLUE,
+                             ((snake[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                              (snake[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                               param.CELL_SIZE,
+                               param.CELL_SIZE),
+                             border_radius=5)
+
                 
            
 def event_handler() -> bool:
@@ -93,6 +125,7 @@ def init_gui(board: environ.Board):
         running = event_handler()
         
         draw_board(screen, board)
+        draw_snake(screen, board.snake)
         pygame.display.flip()
 
     # explicitly clean up resources once loop ends (ie close window)
