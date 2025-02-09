@@ -6,8 +6,9 @@ from enum import Enum
 SCREEN_WIDTH: int = 800
 SCREEN_HEIGHT: int = 600
 CELL_SIZE: int = 30
-BUTTON_HEIGHT: int = CELL_SIZE * 1.5
+BUTTON_HEIGHT: int = CELL_SIZE * 1.3
 BUTTON_WIDTH: int = CELL_SIZE * 4
+BUTTON_PADDING: int = 10
 GREEN: tuple = (0, 255, 0)
 RED: tuple = (255, 0, 0)
 BLUE: tuple = (0, 0, 255)
@@ -20,14 +21,12 @@ EDGE_OFFSET: int = 1
 SIDE_OFFSET: int = 10
 HEADER_SIZE: int = 36
 TEXT_SIZE: int = 24
-PADDING: int = 4
+PADDING: int = 10
 
 
 
 
 # environment parameters
-
-
 class State(Enum):
     WALL = 'W'
     R_APPLE = 'R'

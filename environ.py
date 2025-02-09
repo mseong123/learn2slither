@@ -8,9 +8,8 @@ class Board():
     '''The environment will determine the predefined rules as per subject.pdf
     and pass states to agent.
     '''
-    def __init__(self, size: int = 10, speed: int = 1):
+    def __init__(self, size: int = 10):
         self._size: int = size + 2 # to account for walls
-        self._speed: int = speed
         self._board: list = []
         self._snake: list = []
         self._direction: str = random.randint(0, len(param.Direction) - 1)

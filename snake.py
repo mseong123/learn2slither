@@ -48,6 +48,7 @@ def main():
         "max_duration": 0,
         "curr_length": 3,
         "curr_duration": 0,
+        "curr_session": 1,
         "session": 1,
         "speed": 1
     }
