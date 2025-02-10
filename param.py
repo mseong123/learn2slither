@@ -25,6 +25,9 @@ PADDING: int = 10
 
 # MLP hyperparams
 RANDOM_STATE = 42
+# INPUT COUNT OF STATE FROM ENVIRONMENT 
+# [DISTANCE TO WALL, G_APPLE, R_APPLE, TAIL X 4 ACTIONS]
+INPUT_COUNT = 16
 
 # environment parameters
 class State(Enum):
@@ -43,11 +46,11 @@ class Reward(Enum):
     G_APPLE = 7
     GAME_OVER = -10
     SPACE = -1
-    ILLEGAL_MOVE = -1000000
+    ILLEGAL_MOVE = -10000
 
 
-class Direction(Enum):
-    '''Direction enum'''
+class Action(Enum):
+    '''Action enum'''
     UP = 0
     DOWN = 1
     LEFT = 2
