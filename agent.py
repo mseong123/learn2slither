@@ -6,7 +6,7 @@ from sklearn.preprocessing import OneHotEncoder
 import numpy as np
 import param
 
-class Agent():
+class Snake_Agent():
     '''agent class'''
     def __init__(self, discount: float = 0.9,
                  decay_scale: float = 0.1):
