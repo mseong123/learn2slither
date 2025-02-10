@@ -104,15 +104,71 @@ class Agent():
         y = [(info[1] + (self._discount * self._max_q_value(info[3])))
              for info in self._replay_buffer]
         self._main_network.fit(x, y)
-        # 3) 
+        # 3) transfer coefficients and weights to target network
+        if self._steps % param.UPDATE_ONE == 0:
+            self._target_network.coefs_ = [
+                np.copy(w) for w in self._main_network.coefs_]
+            self._target_network.intercepts_ = [
+                np.copy(b) for b in self._main_network.intercepts_]
 
+
+    def _train_ten(self):
+        '''training methodology for < 100 session'''
+        # 1) pop past experiences if exceed threshold
+        if len(self._replay_buffer > param.REPLAY_SIZE_TEN):
+            del self._replay_buffer[0]
+        # 2) training at interval for session < 100
+        # x = input state (list)
+        if self._steps % param.FREQ_TEN == 0 and\
+            len(self._replay_buffer) > param.MAX_BATCH_TEN:
+            x = [info[0] for info in random.sample(self._replay_buffer,
+                                                   param.MAX_BATCH_TEN)]
+            # y = reward + future reward
+            y = [(info[1] + (self._discount * self._max_q_value(info[3])))
+                for info in random.sample(self._replay_buffer,
+                                          param.MAX_BATCH_TEN)]
+            self._main_network.fit(x, y)
+        # 3) transfer coefficients and weights to target network
+        if self._steps % param.UPDATE_TEN == 0:
+            self._target_network.coefs_ = [
+                np.copy(w) for w in self._main_network.coefs_]
+            self._target_network.intercepts_ = [
+                np.copy(b) for b in self._main_network.intercepts_] 
+
+
+    def _train_hundred(self):
+        '''training methodology for >= 100 session'''
+        # 1) pop past experiences if exceed threshold
+        if len(self._replay_buffer > param.REPLAY_SIZE_HUNDRED):
+            del self._replay_buffer[0]
+        # 2) training at interval for session >= 100
+        # x = input state (list)
+        if self._steps % param.FREQ_HUNDRED == 0 and\
+            len(self._replay_buffer) > param.MAX_BATCH_HUNDRED:
+            x = [info[0] for info in random.sample(self._replay_buffer,
+                                                   param.MAX_BATCH_HUNDRED)]
+            # y = reward + future reward
+            y = [(info[1] + (self._discount * self._max_q_value(info[3])))
+                for info in random.sample(self._replay_buffer,
+                                          param.MAX_BATCH_HUNDRED)]
+            self._main_network.fit(x, y)
+        # 3) transfer coefficients and weights to target network
+        if self._steps % param.UPDATE_HUNDRED == 0:
+            self._target_network.coefs_ = [
+                np.copy(w) for w in self._main_network.coefs_]
+            self._target_network.intercepts_ = [
+                np.copy(b) for b in self._main_network.intercepts_] 
 
     def _train(self) -> None:
-       '''batch sample training from replay buffer. Training methodology 
-       changes incrementally based on total no. of sessions run by model 
-       (1, 10, 100) based on subject pdf'''
-       if self._session < 10:
-           self._train_one()
+        '''batch sample training from replay buffer. Training methodology
+        changes incrementally based on total no. of sessions run by model
+        (1, 10, 100) based on subject pdf'''
+        if self._session < 10:
+            self._train_one()
+        elif self._session < 100:
+            self._train_ten()
+        else:
+            self._train_hundred()
            
 
     def action(self, info: list) -> int:
