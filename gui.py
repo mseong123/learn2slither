@@ -216,7 +216,7 @@ def draw_console(screen: pygame.Surface, args: argparse.Namespace,
                      height_pixel + (param.BUTTON_PADDING * 2)))
         height_pixel += param.BUTTON_HEIGHT
         height_pixel += param.BUTTON_PADDING
-        screen.blit(step_font, step_font_rect) 
+        screen.blit(step_font, step_font_rect)
     return (step_button, up_button, down_button)
 
 

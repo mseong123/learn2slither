@@ -23,11 +23,12 @@ HEADER_SIZE: int = 36
 TEXT_SIZE: int = 24
 PADDING: int = 10
 
-
-
+# MLP hyperparams
+RANDOM_STATE = 42
 
 # environment parameters
 class State(Enum):
+    '''State enum'''
     WALL = 'W'
     R_APPLE = 'R'
     G_APPLE = 'G'
@@ -37,6 +38,7 @@ class State(Enum):
 
 
 class Reward(Enum):
+    '''Reward enum'''
     R_APPLE = -7
     G_APPLE = 7
     GAME_OVER = -10
@@ -45,9 +47,11 @@ class Reward(Enum):
 
 
 class Direction(Enum):
+    '''Direction enum'''
     UP = 0
     DOWN = 1
     LEFT = 2
     RIGHT = 3
+
 
 

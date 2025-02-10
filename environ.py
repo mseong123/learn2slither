@@ -372,5 +372,5 @@ class Board():
             print(f"\n{param.Direction(next_direction).name}\n")
         self._print_state()
         return [next_direction, reward, fatal,
-               *self._get_state()]
+                *self._get_state()]
 
