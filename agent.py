@@ -117,14 +117,16 @@ class Snake_Agent():
             # if exploitation, predict a list of 4 Q_target values for
             # each action and choose the max
             action = self._max_q_value(state)
-            if self._dontlearn is False:
-                self._replay_buffer.append([state])
-                if initial is False:
-                    self._replay_buffer[(len(self._replay_buffer)
-                                        - 2)].extend(info)
-                    # if fatal is True, add permanent session count
-                    if info[2] is True:
-                        self._session += 1
+        if self._dontlearn is False:
+            self._replay_buffer.append([state])
+            if initial is False:
+                self._replay_buffer[(len(self._replay_buffer)
+                                    - 2)].extend(info)
+                # if fatal is True, add permanent session count
+                if info[2] is True:
+                    self._session += 1
+                    self._replay_buffer[len(self._replay_buffer)
+                                        - 2][4] = []
         return action
 
     def _max_q_value(self, state: list) -> float:
@@ -140,13 +142,14 @@ class Snake_Agent():
         if len(self._replay_buffer) > param.REPLAY_SIZE_ONE:
             del self._replay_buffer[0]
         # 2) train every step for session < 10
-        if len(self._replay_buffer) > 0:
+        if len(self._replay_buffer) > 1:
             # x = input state (list)
-            x = [info[0] for info in self._replay_buffer]
+            print(self._replay_buffer)
+            x = [info[0] for info in self._replay_buffer[:-1]]
             # y = reward + future max Q value
-            y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
-                            if len(info[3]) != 0 else 0))
-                for info in self._replay_buffer]
+            y = [(info[2] + ((self._discount * self._max_q_value(info[3]))
+                            if len(info[4]) != 0 else 0))
+                 for info in self._replay_buffer[:-1]]
             self._main_network.fit(x, y)
             self._training += 1
         # 3) transfer coefficients and weights to target network
@@ -168,12 +171,12 @@ class Snake_Agent():
         if self._steps % param.FREQ_TEN == 0 and\
                 len(self._replay_buffer) > param.MAX_BATCH_TEN:
             x = [info[0] for info in random.sample(
-                 self._replay_buffer, param.MAX_BATCH_TEN)]
+                 self._replay_buffer[:-1], param.MAX_BATCH_TEN)]
             # y = reward + future reward
             y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
                              if len(info[3]) != 0 else 0))
                  for info in random.sample(
-                      self._replay_buffer,
+                      self._replay_buffer[:-1],
                       param.MAX_BATCH_TEN)]
             self._main_network.fit(x, y)
             self._training += 1
@@ -195,12 +198,12 @@ class Snake_Agent():
         # x = input state (list)
         if self._steps % param.FREQ_HUNDRED == 0 and\
             len(self._replay_buffer) > param.MAX_BATCH_HUNDRED:
-            x = [info[0] for info in random.sample(self._replay_buffer,
+            x = [info[0] for info in random.sample(self._replay_buffer[:-1],
                                                    param.MAX_BATCH_HUNDRED)]
             # y = reward + future reward
             y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
                              if len(info[3]) != 0 else 0))
-                for info in random.sample(self._replay_buffer,
+                for info in random.sample(self._replay_buffer[:-1],
                                           param.MAX_BATCH_HUNDRED)]
             self._main_network.fit(x, y)
             self._training += 1
