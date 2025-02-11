@@ -14,7 +14,7 @@ class Snake_Agent():
         # discount factor between 0.9 and 0.99 as per standard implementation
         # and remain constant throughout training
         self._discount: float = discount
-        self._session: int = 1
+        self._session: int = 0
         self._steps: int = 0
         # use inverse time decay for e greedy algo. Decay scale measures
         # how fast e decays.
@@ -45,6 +45,16 @@ class Snake_Agent():
         '''setter for session'''
         self._session += count
 
+    @property
+    def steps(self) -> int:
+        '''getter for steps'''
+        return self._steps
+ 
+    @steps.setter
+    def steps(self, count: int) -> None:
+        '''setter for steps'''
+        self._steps += count
+
     def _decay_e(self) -> None:
         '''inverse time decay algo to calculate e'''
         self._e = self._e / (1 + (self._decay_scale * self._session))
@@ -53,11 +63,11 @@ class Snake_Agent():
         '''return array of one hot encoded action'''
         encoder = OneHotEncoder(sparse_output=False)
         return encoder.fit_transform(
-            [[[param.Action.UP.value],
-              [param.Action.DOWN.value],
-              [param.Action.LEFT.value],
-              [param.Action.RIGHT.value]
-              ]])
+            [[param.Action.UP.value],
+             [param.Action.DOWN.value],
+             [param.Action.LEFT.value],
+             [param.Action.RIGHT.value]
+              ])
 
     def _choose_action(self, info: list) -> int:
         '''returns an action based on exploration/exploitation
@@ -77,7 +87,7 @@ class Snake_Agent():
                 action = self._max_q_value(info[0])
                 self._replay_buffer.append([info[0]])
             else:
-                action = self._max_q_value(info[3]) 
+                action = self._max_q_value(info[3])
                 self._replay_buffer.append([info[3]])
                 self._replay_buffer[(len(self._replay_buffer)
                                      - 2)].extend(info)

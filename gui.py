@@ -3,6 +3,7 @@
 import argparse
 import pygame
 import environ
+import agent
 import param
 
 # global variable to keep track of height of sidebar items, hence can render
@@ -65,6 +66,15 @@ def draw_board(screen: pygame.Surface, board: environ.Board) -> None:
         for index_col, col in enumerate(board.board[index_row]):
             if col == param.State.WALL.value:
                 draw_wall(screen, board, index_row, index_col)
+            # elif col == param.State.SPACE.value:
+            #     pygame.draw.rect(screen, param.BLACK,
+            #                      ((index_col + param.EDGE_OFFSET)
+            #                       * param.CELL_SIZE,
+            #                       (index_row + param.EDGE_OFFSET)
+            #                       * param.CELL_SIZE,
+            #                       param.CELL_SIZE,
+            #                       param.CELL_SIZE)
+            #                      )
             elif col == param.State.G_APPLE.value:
                 pygame.draw.rect(screen, param.GREEN,
                                  ((index_col + param.EDGE_OFFSET)
@@ -133,28 +143,68 @@ def event_handler(board: environ.Board, buttons) -> bool:
     return True
 
 def draw_metric(screen: pygame.Surface, metric: dict,
-                pixel_size: int) -> None:
+                pixel_size: int, agent_s: agent.Snake_Agent) -> None:
     '''render metrics and interface into gui'''
     global height_pixel
-    # draw header 
+    # draw header SESSION METRICS
     font = pygame.font.Font(None, param.HEADER_SIZE)
-    header = font.render("Metrics", True, param.DARK_BLUE)
+    header = font.render("Session", True, param.BLUE)
     header_rect = header.get_rect(
         topleft=(pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2),
                  height_pixel + param.PADDING))
+    screen.blit(header, header_rect)
+    # draw header AGENT METRICS
+    header_agent = font.render("Agent", True, param.BLUE)
+    header_rect_agent = header.get_rect(
+        topleft=(pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+                 param.AGENT_OFFSET,
+                 height_pixel + param.PADDING))
+    screen.blit(header_agent, header_rect_agent)
     height_pixel += param.HEADER_SIZE
     height_pixel += param.PADDING
-    screen.blit(header, header_rect)
-    # draw rest of metrics
-    for key, value in metric.items():
-        font = pygame.font.Font(None, param.TEXT_SIZE)
-        text = font.render(f"{key} : {value}", True, param.ORANGE)
-        rect = text.get_rect(topleft=(
-            pixel_size + (param.CELL_SIZE
-                          * param.EDGE_OFFSET * 2),
-            height_pixel))
-        height_pixel += param.TEXT_SIZE
-        screen.blit(text, rect)
+    # draw other SESSION metrics
+    for index, (key, value) in enumerate(metric.items()):
+        if key != "Length" and key != "Duration":
+            font = pygame.font.Font(None, param.TEXT_SIZE)
+            text = font.render(f"{key} : {value}", True, param.ORANGE)
+            rect = text.get_rect(topleft=(
+                pixel_size + (param.CELL_SIZE
+                            * param.EDGE_OFFSET * 2),
+                height_pixel))
+            screen.blit(text, rect)
+            if index == 0:
+                text = font.render(
+                    f"Sessions trained : {agent_s.session}",
+                    True, param.ORANGE)
+                rect = text.get_rect(topleft=(
+                    pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+                    param.AGENT_OFFSET,
+                    height_pixel))
+                screen.blit(text, rect)
+            if index == 1:
+                text = font.render(
+                    f"Duration trained : {agent_s.steps}",
+                    True, param.ORANGE)
+                rect = text.get_rect(topleft=(
+                    pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+                    param.AGENT_OFFSET,
+                    height_pixel))
+                screen.blit(text, rect)
+
+            height_pixel += param.TEXT_SIZE
+    # render current session length and duration inside snake game borders 
+    font = pygame.font.Font(None, param.TEXT_SIZE - 5)
+    text = font.render(f"Length: {metric["Length"]}", True, param.ORANGE)
+    rect = text.get_rect(topright=(
+            pixel_size,
+            param.CELL_SIZE * 2))
+    screen.blit(text, rect)
+    text = font.render(f"Duration: {metric["Duration"]}", True, param.ORANGE)
+    rect = text.get_rect(topright=(
+            pixel_size,
+            (param.CELL_SIZE * 2) + param.TEXT_SIZE - 5))
+    screen.blit(text, rect) 
+      
 
 def draw_console(screen: pygame.Surface, args: argparse.Namespace,
                  pixel_size: int):
@@ -162,7 +212,7 @@ def draw_console(screen: pygame.Surface, args: argparse.Namespace,
     global height_pixel
     # draw header
     font = pygame.font.Font(None, param.HEADER_SIZE)
-    header = font.render("Console", True, param.DARK_BLUE)
+    header = font.render("Console", True, param.BLUE)
     header_rect = header.get_rect(
         topleft=(pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2),
                  height_pixel))
@@ -182,21 +232,21 @@ def draw_console(screen: pygame.Surface, args: argparse.Namespace,
         topleft=(pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)
                  + param.BUTTON_PADDING,
                  height_pixel + param.BUTTON_PADDING))
-    height_pixel += param.BUTTON_HEIGHT
     screen.blit(up_font, up_font_rect)
 
     down_button = pygame.Rect(pixel_size +
                               (param.CELL_SIZE *
-                               param.EDGE_OFFSET * 2),
-                              height_pixel + param.BUTTON_PADDING,
+                               param.EDGE_OFFSET * 2) +
+                              param.BUTTON_WIDTH + param.BUTTON_PADDING,
+                              height_pixel,
                               param.BUTTON_WIDTH, param.BUTTON_HEIGHT)
     pygame.draw.rect(screen, param.ORANGE, down_button, border_radius=5)
     font = pygame.font.Font(None, param.TEXT_SIZE)
     down_font = font.render("Slow DOWN", True, param.DARK_BLUE)
     down_font_rect = down_font.get_rect(
         topleft=(pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)
-                 + param.BUTTON_PADDING,
-                 height_pixel + (param.BUTTON_PADDING * 2)))
+                 + (param.BUTTON_PADDING * 2) + param.BUTTON_WIDTH,
+                 height_pixel + param.BUTTON_PADDING))
     height_pixel += param.BUTTON_HEIGHT
     height_pixel += param.BUTTON_PADDING
     screen.blit(down_font, down_font_rect)
@@ -224,24 +274,24 @@ def draw_console(screen: pygame.Surface, args: argparse.Namespace,
 
 
 
-def init_gui(board: environ.Board, args:argparse.Namespace, metric: dict):
+def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
+             agent_s: agent.Snake_Agent):
     '''function to init and run pygame loop'''
     global height_pixel
     pygame.init()
-    pygame.display.set_caption("Snake Game")
+    pygame.display.set_caption("SNAKE GAME")
     pixel_size: int = board.size * param.CELL_SIZE
     screen: pygame.Surface = pygame.display.\
         set_mode(size=(pixel_size + (param.CELL_SIZE * param.SIDE_OFFSET),
                        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)),
                  flags=pygame.RESIZABLE)
-    pygame.display.set_caption("Snake Game")
     running: bool = True
     while running:
-        screen.fill(param.GREY)
+        screen.fill(param.BLACK)
         draw_board(screen, board)
         draw_snake(screen, board.snake)
         buttons = draw_console(screen, args, pixel_size)
-        draw_metric(screen, metric, pixel_size)
+        draw_metric(screen, metric, pixel_size, agent_s)
         running = event_handler(board, buttons)
         pygame.display.flip()
         height_pixel = 0

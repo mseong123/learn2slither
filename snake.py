@@ -43,13 +43,13 @@ def define_args() -> argparse.Namespace:
 def get_metrics() -> dict:
     '''initialize variables to store program metrics'''
     metric: dict = {
-        "max length": 3,
-        "max duration": 0,
-        "length": 3,
-        "duration": 0,
-        "session": 1,
-        "total session": 1,
-        "speed": 1
+        "Max Length": 3,
+        "Max Duration": 0,
+        "Length": 3,
+        "Duration": 0,
+        "Session": 1,
+        "Total Session": 1,
+        "Speed": 1
     }
     return metric
 
@@ -61,11 +61,11 @@ def main():
     except FileExistsError:
         pass
     # ------------------------------------------------------
-    # INITIALIZE ALL METRICS AND ARGUMENTS 
+    # INITIALIZE ALL METRICS AND ARGUMENTS
     metric: dict = get_metrics()
     snake_agent: agent.Snake_Agent | None = None
-    board: environ.Board = environ.Board(size=args.boardsize)
     args: argparse.Namespace = define_args()
+    board: environ.Board = environ.Board(size=args.boardsize)
     # At minimum need grid size of 5 since subject.pdf snake have length of 3
     if args.boardsize < 5:
         print("Board size too small. Minimum = 5 grid")
@@ -75,7 +75,7 @@ def main():
     if args.sessions is None:
         print("Please provide no. of sessions to run")
         return
-     
+    metric["Total Session"] = args.sessions
     if args.load is None:
         snake_agent = agent.Snake_Agent()
     else:
@@ -87,8 +87,14 @@ def main():
             return
     # -----------------------------------------------------
     # loop game based on session and arguments
+    # if gui activated, session/training speed control by gui fps and controls
     if args.visual == 'on':
-        gui.init_gui(board, args, metric)
+        gui.init_gui(board, args, metric, snake_agent)
+    # otherwise no cap on speed of session/training
+    # else:
+    #     for i in range(int(args.session)):
+
+
 
 
     
