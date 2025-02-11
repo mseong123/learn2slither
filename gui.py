@@ -1,5 +1,6 @@
 '''functions to run pygame GUI'''
 
+import time
 import argparse
 import pygame
 import environ
@@ -114,7 +115,7 @@ def draw_snake(screen: pygame.Surface, snake: list) -> None:
                              border_radius=5)
 
 
-def event_handler(board: environ.Board, buttons) -> bool:
+def event_handler(board: environ.Board, buttons:tuple, metric:dict) -> bool:
     '''pygame event handler'''
     for event in pygame.event.get():
         # if window is closed
@@ -122,28 +123,22 @@ def event_handler(board: environ.Board, buttons) -> bool:
             return False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                return False
-            # key events for debugging
-            if event.key == pygame.K_UP:
-                board.move(0)
-            elif event.key == pygame.K_DOWN:
-                board.move(1)
-            elif event.key == pygame.K_LEFT:
-                board.move(2)
-            elif event.key == pygame.K_RIGHT:
-                board.move(3)
+                return False 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # step_button
             if buttons[0] is not None and buttons[0].collidepoint(event.pos):
                 print("Button[0] Clicked!")
             elif buttons[1].collidepoint(event.pos):
-                print("Button[1] Clicked!")
+                if metric['Speed'] < 10:
+                    metric['Speed'] += 1
             elif buttons[2].collidepoint(event.pos):
-                print("Button[2] Clicked!")
+                if metric['Speed'] > 1:
+                    metric['Speed'] -= 1
     return True
 
 def draw_metric(screen: pygame.Surface, metric: dict,
-                pixel_size: int, agent_s: agent.Snake_Agent) -> None:
+                pixel_size: int, agent_s: agent.Snake_Agent,
+                dontlearn: bool) -> None:
     '''render metrics and interface into gui'''
     global height_pixel
     # draw header SESSION METRICS
@@ -208,6 +203,16 @@ def draw_metric(screen: pygame.Surface, metric: dict,
                     param.AGENT_OFFSET,
                     height_pixel))
                 screen.blit(text, rect)
+            if index == 6 and dontlearn is True:
+                text = font.render(
+                    "AGENT NOT LEARNING",
+                    True, param.RED)
+                rect = text.get_rect(topleft=(
+                    pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+                    param.AGENT_OFFSET,
+                    height_pixel))
+                screen.blit(text, rect)
+
             height_pixel += param.TEXT_SIZE
     # render current session length and duration inside snake game borders 
     font = pygame.font.Font(None, param.TEXT_SIZE - 5)
@@ -287,6 +292,9 @@ def draw_console(screen: pygame.Surface, args: argparse.Namespace,
     return (step_button, up_button, down_button)
 
 
+def run_game(board: environ.Board, agent_s: agent.Snake_Agent,
+             metric: dict, args: argparse.Namespace) -> None:
+    board.get_initial_state()
 
 
 
@@ -308,9 +316,12 @@ def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
         draw_board(screen, board)
         draw_snake(screen, board.snake)
         buttons = draw_console(screen, args, pixel_size)
-        draw_metric(screen, metric, pixel_size, agent_s)
-        running = event_handler(board, buttons)
+        draw_metric(screen, metric, pixel_size, agent_s, args.dontlearn)
+        running = event_handler(board, buttons, metric)
         pygame.display.flip()
+        if args.step_by_step is False:
+            time.sleep(1)
+            run_game(board, agent_s, metric)
         height_pixel = 0
     # explicitly clean up resources once loop ends (ie close window)
     pygame.quit()

@@ -47,7 +47,7 @@ def get_metrics() -> dict:
         "Max Duration": 0,
         "Length": 3,
         "Duration": 0,
-        "Session": 1,
+        "Session": 0,
         "Total Session": 1,
         "Speed": 1
     }
@@ -76,17 +76,22 @@ def main():
         return
     metric["Total Session"] = args.sessions
     if args.load is None:
+        # if no loading argument, create a new agent instance 
         snake_agent = agent.Snake_Agent()
     else:
         if os.path.exists(args.load):
             with open(args.load, "rb") as file:
                 snake_agent = pickle.load(file)
+            # set params in agent to dontlearn if arg is set
+            if args.dontlearn is True:
+                snake_agent.dontlearn = True
+            else:
+                snake_agent.dontlearn = False
         else:
             print("Problem loading model or model doesn't exist. Exiting")
             return
     # -----------------------------------------------------
-    # loop game based on session and arguments
-    # if gui activated, session/training speed control by gui fps and controls
+    # if gui activated, board/agent/speed/training handled by GUI
     if args.visual == 'on':
         gui.init_gui(board, args, metric, snake_agent)
     # otherwise no cap on speed of session/training
