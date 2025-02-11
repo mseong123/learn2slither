@@ -9,16 +9,14 @@ class Board():
     and pass states to agent.
     '''
     def __init__(self, size: int = 10):
-        self._size: int = size + 2 # to account for walls
+        self._size: int = size + 2  # to account for walls
         self._board: list = []
         self._snake: list = []
         self._action: str = random.randint(0, len(param.Action) - 1)
         self._state: list = []
-        self._length: int = 3
         self._duration: int = 0
         self._gui: bool = False
         self.reset_board()
-        self._print_state()
 
 
 
@@ -36,7 +34,7 @@ class Board():
     def size(self) -> int:
         '''getter for board attribute'''
         return self._size
-    
+     
     @property
     def gui(self) -> int:
         '''getter for gui option'''
@@ -356,18 +354,20 @@ class Board():
         a list of state values to agent'''
         # return value is a list to be included in agent's replay buffer
         # [reward, terminal bool, prev state, new state after taking action]
-        
         reward: int = 0
         fatal: bool = False
         if self._check_illegal(next_action) is True:
             self.reset_board()
-            print("\nRESET BOARD\n")
+            if self._gui is True:
+                print(f"\n{param.Action(next_action).name}")
+                print("\nILLEGAL MOVE - RESET BOARD\n")
             reward = param.Reward.ILLEGAL_MOVE.value
             fatal = True
         elif self._check_died(next_action) is True:
             self.reset_board()
             if self._gui is True:
-                print("\nRESET BOARD\n")
+                print(f"\n{param.Action(next_action).name}")
+                print("\nDIED - RESET BOARD\n")
             reward = param.Reward.GAME_OVER.value
             fatal = True
         elif self._check_green_apple(next_action) is True:

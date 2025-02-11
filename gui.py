@@ -122,7 +122,7 @@ def run_game_step(board: environ.Board, snake_agent: agent.Snake_Agent,
         print(f"Game Over, max length = {metric["Max Length"]}, \
                 max duration = {metric["Max Duration"]}")
     else:
-        if metric["Session"] == 0:
+        if metric["Session"] == 0 and metric["Duration"] == 0:
             state = board.get_initial_state()
             action = snake_agent.action([state])
             param.BOARD_STATE["state"] = board.move(action)
@@ -132,7 +132,7 @@ def run_game_step(board: environ.Board, snake_agent: agent.Snake_Agent,
             param.BOARD_STATE["state"] = board.move(action)
             metric["Duration"] += 1
             if param.BOARD_STATE["state"][2] is True:
-                snake.reset_metrics(metric)
+                snake.reset_metrics(metric, board)
     
 
 def event_handler(board: environ.Board, buttons:tuple,
@@ -158,8 +158,8 @@ def event_handler(board: environ.Board, buttons:tuple,
     return True
 
 def draw_metric(screen: pygame.Surface, metric: dict,
-                pixel_size: int, agent_s: agent.Snake_Agent,
-                dontlearn: bool) -> None:
+                pixel_size: int, snake_agent: agent.Snake_Agent,
+                dontlearn: bool, board: environ.Board) -> None:
     '''render metrics and interface into gui'''
     global height_pixel
     # draw header SESSION METRICS
@@ -180,7 +180,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
     height_pixel += param.PADDING
     # draw other SESSION metrics
     for index, (key, value) in enumerate(metric.items()):
-        if key != "Length" and key != "Duration":
+        if key != "Duration":
             font = pygame.font.Font(None, param.TEXT_SIZE)
             text = font.render(f"{key} : {value}", True, param.ORANGE)
             rect = text.get_rect(topleft=(
@@ -190,7 +190,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
             screen.blit(text, rect)
             if index == 0:
                 text = font.render(
-                    f"Sessions trained : {agent_s.session}",
+                    f"Sessions : {snake_agent.session}",
                     True, param.ORANGE)
                 rect = text.get_rect(topleft=(
                     pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
@@ -199,7 +199,16 @@ def draw_metric(screen: pygame.Surface, metric: dict,
                 screen.blit(text, rect)
             if index == 1:
                 text = font.render(
-                    f"Duration trained : {agent_s.steps}",
+                    f"Duration : {snake_agent.steps}",
+                    True, param.ORANGE)
+                rect = text.get_rect(topleft=(
+                    pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+                    param.AGENT_OFFSET,
+                    height_pixel))
+                screen.blit(text, rect)
+            if index == 3:
+                text = font.render(
+                    f"Main network train : {snake_agent.training}",
                     True, param.ORANGE)
                 rect = text.get_rect(topleft=(
                     pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
@@ -208,23 +217,14 @@ def draw_metric(screen: pygame.Surface, metric: dict,
                 screen.blit(text, rect)
             if index == 4:
                 text = font.render(
-                    f"Main network train : {agent_s.training}",
+                    f"Network transfer : {snake_agent.transfer_weight}",
                     True, param.ORANGE)
                 rect = text.get_rect(topleft=(
                     pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
                     param.AGENT_OFFSET,
                     height_pixel))
                 screen.blit(text, rect)
-            if index == 5:
-                text = font.render(
-                    f"Network transfer : {agent_s.transfer_weight}",
-                    True, param.ORANGE)
-                rect = text.get_rect(topleft=(
-                    pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
-                    param.AGENT_OFFSET,
-                    height_pixel))
-                screen.blit(text, rect)
-            if index == 6 and dontlearn is True:
+            if index == 5 and dontlearn is True:
                 text = font.render(
                     "AGENT NOT LEARNING",
                     True, param.RED)
@@ -237,7 +237,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
             height_pixel += param.TEXT_SIZE
     # render current session length and duration inside snake game borders 
     font = pygame.font.Font(None, param.TEXT_SIZE - 5)
-    text = font.render(f"Length: {metric["Length"]}", True, param.ORANGE)
+    text = font.render(f"Length: {len(board.snake)}", True, param.ORANGE)
     rect = text.get_rect(topright=(
             pixel_size,
             param.CELL_SIZE * 2))
@@ -246,7 +246,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
     rect = text.get_rect(topright=(
             pixel_size,
             (param.CELL_SIZE * 2) + param.TEXT_SIZE - 5))
-    screen.blit(text, rect) 
+    screen.blit(text, rect)
       
 
 def draw_console(screen: pygame.Surface, args: argparse.Namespace,
@@ -335,12 +335,13 @@ def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
                        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)),
                  flags=pygame.RESIZABLE)
     running: bool = True
-    while running: 
+    while running:
         screen.fill(param.BLACK)
         draw_board(screen, board)
         draw_snake(screen, board.snake)
         buttons = draw_console(screen, args, pixel_size)
-        draw_metric(screen, metric, pixel_size, snake_agent, args.dontlearn)
+        draw_metric(screen, metric, pixel_size, snake_agent,
+                    args.dontlearn, board)
         if metric["Session"] == metric["Total Session"]:
             draw_game_over(screen, pixel_size)
         running = event_handler(board, buttons, metric, snake_agent)

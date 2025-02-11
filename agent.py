@@ -109,6 +109,7 @@ class Snake_Agent():
             state = info[3]
         # exploration vs exploitation 
         if random.random() < self._e:
+            print("e",self._e)
             # if exploration choose random action integer
             action = random.randint(list(param.Action)[0].value,
                                     len(param.Action) - 1)
@@ -136,18 +137,20 @@ class Snake_Agent():
     def _train_one(self):
         '''training methodology for < 10 session'''
         # 1) pop past experiences if exceed threshold
-        if len(self._replay_buffer > param.REPLAY_SIZE_ONE):
+        if len(self._replay_buffer) > param.REPLAY_SIZE_ONE:
             del self._replay_buffer[0]
         # 2) train every step for session < 10
-        # x = input state (list)
-        x = [info[0] for info in self._replay_buffer]
-        # y = reward + future max Q value
-        y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
-                         if len(info[3]) != 0 else 0))
-             for info in self._replay_buffer]
-        self._main_network.fit(x, y)
+        if len(self._replay_buffer) > 0:
+            # x = input state (list)
+            x = [info[0] for info in self._replay_buffer]
+            # y = reward + future max Q value
+            y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
+                            if len(info[3]) != 0 else 0))
+                for info in self._replay_buffer]
+            self._main_network.fit(x, y)
+            self._training += 1
         # 3) transfer coefficients and weights to target network
-        if self._steps % param.UPDATE_ONE == 0:
+        if self._steps > 1 and self._steps % param.UPDATE_ONE == 0:
             self._target_network.coefs_ = [
                 np.copy(w) for w in self._main_network.coefs_]
             self._target_network.intercepts_ = [
@@ -158,7 +161,7 @@ class Snake_Agent():
     def _train_ten(self):
         '''training methodology for < 100 session'''
         # 1) pop past experiences if exceed threshold
-        if len(self._replay_buffer > param.REPLAY_SIZE_TEN):
+        if len(self._replay_buffer) > param.REPLAY_SIZE_TEN:
             del self._replay_buffer[0]
         # 2) training at interval for session < 100
         # x = input state (list)
@@ -173,8 +176,9 @@ class Snake_Agent():
                       self._replay_buffer,
                       param.MAX_BATCH_TEN)]
             self._main_network.fit(x, y)
+            self._training += 1
         # 3) transfer coefficients and weights to target network
-        if self._steps % param.UPDATE_TEN == 0:
+        if self._steps > 1 and self._steps % param.UPDATE_TEN == 0:
             self._target_network.coefs_ = [
                 np.copy(w) for w in self._main_network.coefs_]
             self._target_network.intercepts_ = [
@@ -185,7 +189,7 @@ class Snake_Agent():
     def _train_hundred(self):
         '''training methodology for >= 100 session'''
         # 1) pop past experiences if exceed threshold
-        if len(self._replay_buffer > param.REPLAY_SIZE_HUNDRED):
+        if len(self._replay_buffer) > param.REPLAY_SIZE_HUNDRED:
             del self._replay_buffer[0]
         # 2) training at interval for session >= 100
         # x = input state (list)
@@ -199,8 +203,9 @@ class Snake_Agent():
                 for info in random.sample(self._replay_buffer,
                                           param.MAX_BATCH_HUNDRED)]
             self._main_network.fit(x, y)
+            self._training += 1
         # 3) transfer coefficients and weights to target network
-        if self._steps % param.UPDATE_HUNDRED == 0:
+        if self._steps > 1 and self._steps % param.UPDATE_HUNDRED == 0:
             self._target_network.coefs_ = [
                 np.copy(w) for w in self._main_network.coefs_]
             self._target_network.intercepts_ = [
@@ -222,14 +227,15 @@ class Snake_Agent():
     def action(self, info: list) -> int:
         '''outputs an action based on info passed by environment
         and append info in replay buffer for training'''
-        # if brand new agent instance (session = 0)
+        # if brand new agent instance (steps = 0)
         # set up initial weights for target network
         # with initial inputs and first action and 0 result.
         # Step required so can start generating Q target values
         # although model is untrained
-        if self._session == 0:
-            input_state: list = info[0].append(self._action[0])
-            self._target_network.fit(input_state, [0])
+        if self._steps == 0:
+            input_state: list = info[0].copy()
+            input_state.extend(self._action[0])
+            self._target_network.fit([input_state], [0])
         action: int = self._choose_action(info)
         # if dontlearn is false, 1) train
         # 2) increment permanent step count by 1 for agent for training
