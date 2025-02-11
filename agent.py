@@ -16,10 +16,15 @@ class Snake_Agent():
         self._discount: float = discount
         self._session: int = 0
         self._steps: int = 0
+        self._speed: int = 1
         # use inverse time decay for e greedy algo. Decay scale measures
         # how fast e decays.
         self._decay_scale: int = decay_scale
         self._e: float = 1
+        # state of training at set interval to show at GUI
+        self._training: int = 0
+        # state of transferring weights to target network to show at GUI
+        self._transfer_weight: int = 0
         # initialise 2 MLP network (main and target). One is for training,
         # the other to generate Q target. To prevent chasing a changing 
         # objective.
@@ -49,11 +54,21 @@ class Snake_Agent():
     def steps(self) -> int:
         '''getter for steps'''
         return self._steps
- 
+
     @steps.setter
     def steps(self, count: int) -> None:
         '''setter for steps'''
         self._steps += count
+
+    @property
+    def transfer_weight(self) -> int:
+        '''getter for transfer weight'''
+        return self._transfer_weight
+ 
+    @property
+    def training(self) -> int:
+        '''getter for training'''
+        return self._training
 
     def _decay_e(self) -> None:
         '''inverse time decay algo to calculate e'''
@@ -67,7 +82,7 @@ class Snake_Agent():
              [param.Action.DOWN.value],
              [param.Action.LEFT.value],
              [param.Action.RIGHT.value]
-              ])
+             ])
 
     def _choose_action(self, info: list) -> int:
         '''returns an action based on exploration/exploitation
@@ -120,6 +135,7 @@ class Snake_Agent():
                 np.copy(w) for w in self._main_network.coefs_]
             self._target_network.intercepts_ = [
                 np.copy(b) for b in self._main_network.intercepts_]
+            self._transfer_weight += 1
 
 
     def _train_ten(self):

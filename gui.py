@@ -190,7 +190,24 @@ def draw_metric(screen: pygame.Surface, metric: dict,
                     param.AGENT_OFFSET,
                     height_pixel))
                 screen.blit(text, rect)
-
+            if index == 4:
+                text = font.render(
+                    f"Main network train : {agent_s.training}",
+                    True, param.ORANGE)
+                rect = text.get_rect(topleft=(
+                    pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+                    param.AGENT_OFFSET,
+                    height_pixel))
+                screen.blit(text, rect)
+            if index == 5:
+                text = font.render(
+                    f"Network transfer : {agent_s.transfer_weight}",
+                    True, param.ORANGE)
+                rect = text.get_rect(topleft=(
+                    pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+                    param.AGENT_OFFSET,
+                    height_pixel))
+                screen.blit(text, rect)
             height_pixel += param.TEXT_SIZE
     # render current session length and duration inside snake game borders 
     font = pygame.font.Font(None, param.TEXT_SIZE - 5)

@@ -53,7 +53,6 @@ def get_metrics() -> dict:
     }
     return metric
 
-
 def main():
     '''main function to run program'''
     try:
