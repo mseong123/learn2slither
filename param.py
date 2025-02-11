@@ -9,6 +9,7 @@ CELL_SIZE: int = 30
 BUTTON_HEIGHT: int = CELL_SIZE * 1.3
 BUTTON_WIDTH: int = CELL_SIZE * 4
 BUTTON_PADDING: int = 10
+WHITE: tuple = (255, 255, 255)
 GREEN: tuple = (0, 255, 0)
 RED: tuple = (255, 0, 0)
 BLUE: tuple = (0, 0, 255)
@@ -23,6 +24,9 @@ AGENT_OFFSET: int = CELL_SIZE * 5
 HEADER_SIZE: int = 36
 TEXT_SIZE: int = 24
 PADDING: int = 10
+BOARD_STATE: dict = {
+    "state": []
+}
 
 # MLP hyperparams
 RANDOM_STATE = 42

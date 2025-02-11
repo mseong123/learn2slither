@@ -142,7 +142,8 @@ class Snake_Agent():
         # x = input state (list)
         x = [info[0] for info in self._replay_buffer]
         # y = reward + future max Q value
-        y = [(info[1] + (self._discount * self._max_q_value(info[3])))
+        y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
+                         if len(info[3]) != 0 else 0))
              for info in self._replay_buffer]
         self._main_network.fit(x, y)
         # 3) transfer coefficients and weights to target network
@@ -166,7 +167,8 @@ class Snake_Agent():
             x = [info[0] for info in random.sample(
                  self._replay_buffer, param.MAX_BATCH_TEN)]
             # y = reward + future reward
-            y = [(info[1] + (self._discount * self._max_q_value(info[3])))
+            y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
+                             if len(info[3]) != 0 else 0))
                  for info in random.sample(
                       self._replay_buffer,
                       param.MAX_BATCH_TEN)]
@@ -192,7 +194,8 @@ class Snake_Agent():
             x = [info[0] for info in random.sample(self._replay_buffer,
                                                    param.MAX_BATCH_HUNDRED)]
             # y = reward + future reward
-            y = [(info[1] + (self._discount * self._max_q_value(info[3])))
+            y = [(info[1] + ((self._discount * self._max_q_value(info[3]))
+                             if len(info[3]) != 0 else 0))
                 for info in random.sample(self._replay_buffer,
                                           param.MAX_BATCH_HUNDRED)]
             self._main_network.fit(x, y)
@@ -230,10 +233,11 @@ class Snake_Agent():
         action: int = self._choose_action(info)
         # if dontlearn is false, 1) train
         # 2) increment permanent step count by 1 for agent for training
-        # metrics. 
+        # metrics.
         if self._dontlearn is False:
             self._train()
             self._steps += 1
+        self._decay_e()
         return action
 
 

@@ -16,8 +16,8 @@ class Board():
         self._state: list = []
         self._length: int = 3
         self._duration: int = 0
+        self._gui: bool = False
         self.reset_board()
-        print("\nGAME START\n")
         self._print_state()
 
 
@@ -36,6 +36,16 @@ class Board():
     def size(self) -> int:
         '''getter for board attribute'''
         return self._size
+    
+    @property
+    def gui(self) -> int:
+        '''getter for gui option'''
+        return self._gui
+    
+    @gui.setter
+    def gui(self, switch: bool) -> None:
+        '''setter for gui option'''
+        self._gui = switch
 
     def reset_board(self) -> None:
         '''wrapper function to reset board and snake'''
@@ -299,6 +309,8 @@ class Board():
 
     def get_initial_state(self) -> list:
         '''return initial state before first move by snake.'''
+        if self._gui is True:
+            print("\nGAME START\n")
         return self._get_state()
 
     def _amend_snake(self, next_action: int, action: str) -> None:
@@ -354,7 +366,8 @@ class Board():
             fatal = True
         elif self._check_died(next_action) is True:
             self.reset_board()
-            print("\nRESET BOARD\n")
+            if self._gui is True:
+                print("\nRESET BOARD\n")
             reward = param.Reward.GAME_OVER.value
             fatal = True
         elif self._check_green_apple(next_action) is True:
@@ -370,8 +383,10 @@ class Board():
             reward = param.Reward.SPACE.value
         if fatal is not True:
             self._action = next_action
-            print(f"\n{param.Action(next_action).name}\n")
-        self._print_state()
+            if self._gui is True:
+                print(f"\n{param.Action(next_action).name}\n")
+        if self._gui is True:
+            self._print_state()
         if fatal is True:
             return [next_action, reward, fatal, []]
         return [next_action, reward, fatal,
