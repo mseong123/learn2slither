@@ -129,6 +129,9 @@ def run_game_step(board: environ.Board, snake_agent: agent.Snake_Agent,
             param.BOARD_STATE["state"] = board.move(action)
             metric["Duration"] += 1
             if param.BOARD_STATE["state"][2] is True:
+                # have to manually add session to snake_agent
+                # not ideal but due to mismatch of timing of execution
+                # of statements.
                 snake_agent.add_session(1)
                 snake.reset_metrics(metric, board)
         else:
