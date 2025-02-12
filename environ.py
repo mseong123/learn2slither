@@ -12,7 +12,8 @@ class Board():
         self._size: int = size + 2  # to account for walls
         self._board: list = []
         self._snake: list = []
-        self._action: str = random.randint(0, len(param.Action) - 1)
+        self._action: int = random.randint(0, len(param.Action) - 1)
+        self._prev_action: int | None = None
         self._state: list = []
         self._duration: int = 0
         self._gui: bool = False
@@ -44,6 +45,16 @@ class Board():
     def gui(self, switch: bool) -> None:
         '''setter for gui option'''
         self._gui = switch
+
+    @property
+    def prev_action(self) -> int:
+        '''getter for previous action'''
+        return self._prev_action
+
+    @property
+    def action(self) -> int:
+        '''getter for current action'''
+        return self._action
 
     def reset_board(self) -> None:
         '''wrapper function to reset board and snake'''
@@ -357,6 +368,7 @@ class Board():
         if self._check_illegal(next_action) is True:
             self.reset_board()
             if self._gui is True:
+                self._prev_action = -1
                 print(f"\n{param.Action(next_action).name}")
                 print("\nILLEGAL MOVE - RESET BOARD\n")
             reward = param.Reward.ILLEGAL_MOVE.value
@@ -364,6 +376,7 @@ class Board():
         elif self._check_died(next_action) is True:
             self.reset_board()
             if self._gui is True:
+                self._prev_action = -1
                 print(f"\n{param.Action(next_action).name}")
                 print("\nDIED - RESET BOARD\n")
             reward = param.Reward.GAME_OVER.value
@@ -380,6 +393,7 @@ class Board():
             self._amend_snake(next_action, "move")
             reward = param.Reward.SPACE.value
         if fatal is not True:
+            self._prev_action = self._action
             self._action = next_action
             if self._gui is True:
                 print(f"\n{param.Action(next_action).name}\n")

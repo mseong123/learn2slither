@@ -49,7 +49,7 @@ def get_metrics(args: argparse.Namespace) -> dict:
         "Duration": 0,
         "Session": 0,
         "Total Session": args.sessions,
-        "Speed": 1
+        "Speed": 1,
     }
     return metric
 
@@ -88,8 +88,8 @@ def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
                 reset_metrics(metric, board)
         if args.visual == 'on':
             time.sleep(1 / metric["Speed"])
-    print(f"Game Over, max length = {metric["Max Length"]}, \
-          max duration = {metric["Max Duration"]}")
+    print(f"Game Over, max length = {metric["Max Length"]},"
+          f"max duration = {metric["Max Duration"]}")
 
 def main():
     '''main function to run program'''
@@ -115,7 +115,7 @@ def main():
     metric["Total Session"] = args.sessions
     if args.load is None:
         # if no loading argument, create a new agent instance
-        snake_agent = agent.Snake_Agent()
+        snake_agent = agent.Snake_Agent(decay_scale=param.DECAY_SCALE)
     else:
         if os.path.exists(args.load):
             with open(args.load, "rb") as file:

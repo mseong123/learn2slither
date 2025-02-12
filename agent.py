@@ -1,6 +1,7 @@
 '''Agent Class definition using Deep Q Learning and e-greedy approach(exploration vs exploitation)'''
 
 import random
+import math
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
@@ -95,6 +96,8 @@ class Snake_Agent():
 
     def _decay_e(self) -> None:
         '''inverse time decay algo to calculate e'''
+        # self._e *= math.exp(-self._decay_scale * self._session)
+        # inverse decay too fast, by session 4, e = 0.1
         self._e = self._e / (1 + (self._decay_scale * self._session))
 
     def _one_hot_encode_action(self) -> list:
@@ -143,6 +146,7 @@ class Snake_Agent():
                                         self._action[info[0]])
                 # if fatal is True, amend previous session state 
                 if info[2] is True:
+                    self._decay_e()
                     self._replay_buffer[len(self._replay_buffer)
                                         - 2][4] = []
         return action
@@ -165,7 +169,6 @@ class Snake_Agent():
         # 2) train every step for session < 10
         if len(self._replay_buffer) > 1:
             # x = input state (list)
-            print("replay_buffer", self._replay_buffer)
             x = [state[0] for state in self._replay_buffer[:-1]]
             # y = reward + future max Q value
             y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
@@ -267,7 +270,6 @@ class Snake_Agent():
         if self._dontlearn is False:
             self._train()
             self._steps += 1
-        self._decay_e()
         return action
 
 

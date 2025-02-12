@@ -104,43 +104,45 @@ def draw_snake(screen: pygame.Surface, snake: list) -> None:
             pygame.draw.rect(screen, param.DARK_BLUE,
                              ((snake[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
                               (snake[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
-                               param.CELL_SIZE,
-                               param.CELL_SIZE),
+                              param.CELL_SIZE,
+                              param.CELL_SIZE),
                              border_radius=5)
         else:
             pygame.draw.rect(screen, param.BLUE,
                              ((snake[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
                               (snake[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
-                               param.CELL_SIZE,
-                               param.CELL_SIZE),
+                              param.CELL_SIZE,
+                              param.CELL_SIZE),
                              border_radius=5)
 
 def run_game_step(board: environ.Board, snake_agent: agent.Snake_Agent,
                   metric: dict,  ) -> None:
-    '''function to run game step by step using GUI'''
-    if metric["Session"] == metric["Total Session"]:
-        print(f"Game Over, max length = {metric["Max Length"]}, \
-                max duration = {metric["Max Duration"]}")
+    '''function to run game step by step using GUI''' 
+    if metric["Session"] == 0 and metric["Duration"] == 0:
+        state = board.get_initial_state()
+        action = snake_agent.action([state])
+        # Since step by step, need to store persistent state somewhere
+        param.BOARD_STATE["state"] = board.move(action)
+        metric["Duration"] += 1
+        if param.BOARD_STATE["state"][2] is True:
+            # have to manually add session to snake_agent
+            # not ideal but due to mismatch of timing of execution
+            # of statements.
+            snake_agent.add_session(1)
+            snake.reset_metrics(metric, board)
+        if metric["Session"] == metric["Total Session"]:
+            print(f"Game Over, max length = {metric["Max Length"]}, \
+            max duration = {metric["Max Duration"]}")
     else:
-        if metric["Session"] == 0 and metric["Duration"] == 0:
-            state = board.get_initial_state()
-            action = snake_agent.action([state])
-            # Since step by step, need to store persistent state somewhere
-            param.BOARD_STATE["state"] = board.move(action)
-            metric["Duration"] += 1
-            if param.BOARD_STATE["state"][2] is True:
-                # have to manually add session to snake_agent
-                # not ideal but due to mismatch of timing of execution
-                # of statements.
-                snake_agent.add_session(1)
-                snake.reset_metrics(metric, board)
-        else:
-            action = snake_agent.action(param.BOARD_STATE["state"])
-            param.BOARD_STATE["state"] = board.move(action)
-            metric["Duration"] += 1
-            if param.BOARD_STATE["state"][2] is True:
-                snake_agent.add_session(1)
-                snake.reset_metrics(metric, board)
+        action = snake_agent.action(param.BOARD_STATE["state"])
+        param.BOARD_STATE["state"] = board.move(action)
+        metric["Duration"] += 1
+        if param.BOARD_STATE["state"][2] is True:
+            snake_agent.add_session(1)
+            snake.reset_metrics(metric, board)
+        if metric["Session"] == metric["Total Session"]:
+            print(f"Game Over, max length = {metric["Max Length"]}, \
+            max duration = {metric["Max Duration"]}")
     
 
 def event_handler(board: environ.Board, buttons:tuple,
@@ -156,12 +158,15 @@ def event_handler(board: environ.Board, buttons:tuple,
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # step_button
             if buttons[0] is not None and buttons[0].collidepoint(event.pos):
-                run_game_step(board, snake_agent, metric)
+                if metric["Session"] < metric["Total Session"]:
+                    run_game_step(board, snake_agent, metric)
             elif buttons[1].collidepoint(event.pos):
-                if metric['Speed'] < 10:
+                if metric['Speed'] < 10 and metric["Session"] <\
+                    metric["Total Session"]:
                     metric['Speed'] += 1
             elif buttons[2].collidepoint(event.pos):
-                if metric['Speed'] > 1:
+                if metric['Speed'] > 1 and metric["Session"] <\
+                    metric["Total Session"]:
                     metric['Speed'] -= 1
     return True
 
@@ -256,8 +261,20 @@ def draw_metric(screen: pygame.Surface, metric: dict,
             pixel_size,
             (param.CELL_SIZE * 2) + param.TEXT_SIZE - 5))
     screen.blit(text, rect)
-    # render exploration/exploitation metrics for agent
+    # render prev action for snake
     font = pygame.font.Font(None, param.TEXT_SIZE)
+    if board.prev_action is not None:
+        prev = board.prev_action
+        color = param.GREEN if prev >= 0 else param.RED
+        text = font.render(
+            f"prev: {param.Action(prev).name if prev >= 0 else "DIED"}",
+            True, color)
+        rect = text.get_rect(topleft=(
+            pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2),
+            height_pixel))
+        screen.blit(text, rect)
+ 
+    # render exploration/exploitation metrics for agent
     text = font.render(
         f"ε: {snake_agent.e:.1f} r: {snake_agent.random_float:.1f}",
         True, param.GREEN)
@@ -267,6 +284,14 @@ def draw_metric(screen: pygame.Surface, metric: dict,
         height_pixel))
     screen.blit(text, rect)
     height_pixel += param.TEXT_SIZE
+
+    # render current action for snake
+    text = font.render(
+        f"current: {param.Action(board.action).name}", True, param.GREEN)
+    rect = text.get_rect(topleft=(
+        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2),
+        height_pixel))
+    screen.blit(text, rect)
     text = font.render(
         f"{"Exploration" if snake_agent.random_float < snake_agent.e
            else "Exploitation"}",
@@ -347,8 +372,8 @@ def draw_game_over(screen: pygame.Surface, pixel_size: int) -> None:
     font = pygame.font.Font(None, param.HEADER_SIZE * 2)
     game_over_font = font.render("GAME OVER", True, param.WHITE)
     game_over_font_rect = game_over_font.get_rect(
-        center=(pixel_size + (param.CELL_SIZE * param.SIDE_OFFSET),
-                pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2))
+        center=((pixel_size + (param.CELL_SIZE * param.SIDE_OFFSET)) // 2,
+                (pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)) // 2)
     )
     screen.blit(game_over_font, game_over_font_rect)
 
