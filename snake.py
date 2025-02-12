@@ -62,12 +62,43 @@ def reset_metrics(metric: dict, board: environ.Board) -> int:
     metric["Duration"] = 0
     metric["Session"] += 1
 
-
+def run_game_step(board: environ.Board, snake_agent: agent.Snake_Agent,
+                  metric: dict, dontlearn: bool) -> None:
+    '''function to run game step by step using GUI''' 
+    if metric["Session"] == 0 and metric["Duration"] == 0:
+        state = board.get_initial_state()
+        action = snake_agent.action([state])
+        # Since step by step, need to store persistent state somewhere
+        param.BOARD_STATE["state"] = board.move(action)
+        metric["Duration"] += 1
+        if param.BOARD_STATE["state"][2] is True:
+            # have to manually add session to snake_agent
+            # not ideal but due to mismatch of timing of execution
+            # of statements.
+            if dontlearn is False:
+                snake_agent.add_session(1)
+            reset_metrics(metric, board)
+        if metric["Session"] == metric["Total Session"]:
+            print(f"Game Over, max length = {metric["Max Length"]}, \
+            max duration = {metric["Max Duration"]}")
+    else:
+        action = snake_agent.action(param.BOARD_STATE["state"])
+        param.BOARD_STATE["state"] = board.move(action)
+        metric["Duration"] += 1
+        if param.BOARD_STATE["state"][2] is True:
+            if dontlearn is False:
+                snake_agent.add_session(1)
+            reset_metrics(metric, board)
+        if metric["Session"] == metric["Total Session"]:
+            print(f"Game Over, max length = {metric["Max Length"]}, \
+            max duration = {metric["Max Duration"]}")
+    
 
 
 def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
              metric: dict, args: argparse.Namespace) -> None:
     '''function to run game between environ(board) and agents'''
+    print("here")
     state: list = []
     action: int = 0
     while metric["Session"] <= metric["Total Session"]:
@@ -77,14 +108,16 @@ def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
             state = board.move(action)
             metric["Duration"] += 1
             if state[2] is True:
-                snake_agent.add_session(1)
+                if args.dontlearn is False:
+                    snake_agent.add_session(1)
                 reset_metrics(metric, board)
         else:
             action = snake_agent.action(state)
             state = board.move(action)
             metric["Duration"] += 1
             if state[2] is True:
-                snake_agent.add_session(1)
+                if args.dontlearn is False:
+                    snake_agent.add_session(1)
                 reset_metrics(metric, board)
         if args.visual == 'on':
             time.sleep(1 / metric["Speed"])
@@ -119,16 +152,16 @@ def main():
     else:
         if os.path.exists(args.load):
             with open(args.load, "rb") as file:
-                snake_agent = pickle.load(file)
-            # set params in agent to dontlearn if arg is set
-            if args.dontlearn is True:
-                snake_agent.dontlearn = True
-            else:
-                snake_agent.dontlearn = False
+                snake_agent = pickle.load(file) 
             print(f"Load trained model from {args.load}")
         else:
             print("Problem loading model or model doesn't exist. Exiting")
             return
+    # set params in agent to dontlearn if arg is set
+    if args.dontlearn is True:
+        snake_agent.dontlearn = True
+    else:
+        snake_agent.dontlearn = False
     # -----------------------------------------------------
     # if GUI activated, board state appear on gui and speed of game/training
     # is human readable. If step_by_step activated, game controlled by console

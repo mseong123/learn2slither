@@ -253,12 +253,12 @@ class Snake_Agent():
     def action(self, info: list) -> int:
         '''outputs an action based on info passed by environment
         and append info in replay buffer for training'''
-        # if brand new agent instance (steps = 0)
+        # if brand new agent instance (check for coefs_ attribute)
         # set up initial weights for target network
         # with initial inputs and first action and 0 result.
         # Step required so can start generating Q target values
         # although model is untrained
-        if self._steps == 0:
+        if hasattr(self._target_network, 'coefs_') is False:
             input_state: list = info[0].copy()
             input_state.extend(self._action[0])
             self._target_network.fit([input_state], [0])

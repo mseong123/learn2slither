@@ -61,9 +61,9 @@ class Reward(Enum):
     '''Reward enum'''
     R_APPLE = -7
     G_APPLE = 7
-    GAME_OVER = -10
+    GAME_OVER = -50
     SPACE = -1
-    ILLEGAL_MOVE = -10000
+    ILLEGAL_MOVE = -1000000
 
 
 class Action(Enum):
