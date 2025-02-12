@@ -44,11 +44,11 @@ FREQ_HUNDRED = 4
 # BUFFER SIZE
 REPLAY_SIZE_ONE = 250
 REPLAY_SIZE_TEN = 2500
-REPLAY_SIZE_HUNDRED = 7500
+REPLAY_SIZE_HUNDRED = 50000
 # UPDATE TARGET NETWORK (no of steps)
 UPDATE_ONE = 10
 UPDATE_TEN = 50
-UPDATE_HUNDRED = 500
+UPDATE_HUNDRED = 750
 
 # environment parameters
 class State(Enum):
@@ -63,11 +63,11 @@ class State(Enum):
 
 class Reward(Enum):
     '''Reward enum'''
-    R_APPLE = -7
-    G_APPLE = 7
-    GAME_OVER = -50
-    SPACE = -1
-    ILLEGAL_MOVE = -1000000
+    R_APPLE = -2
+    G_APPLE = 2
+    GAME_OVER = -10
+    SPACE = -0.1
+    ILLEGAL_MOVE = -20
 
 
 class Action(Enum):

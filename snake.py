@@ -98,7 +98,6 @@ def run_game_gui(board: environ.Board, snake_agent: agent.Snake_Agent,
 def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
              metric: dict, args: argparse.Namespace) -> None:
     '''function to run game between environ(board) and agents'''
-    print("here")
     state: list = []
     action: int = 0
     while metric["Session"] <= metric["Total Session"]:
@@ -119,8 +118,6 @@ def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
                 if args.dontlearn is False:
                     snake_agent.add_session(1)
                 reset_metrics(metric, board)
-        if args.visual == 'on':
-            time.sleep(1 / metric["Speed"])
     print(f"Game Over, max length = {metric["Max Length"]},"
           f"max duration = {metric["Max Duration"]}")
 
@@ -175,8 +172,13 @@ def main():
     else:
         run_game(board, snake_agent, metric, args)
     if args.save is not None:
+        for i in range(len(snake_agent.replay_buffer) - 1,
+                       len(snake_agent.replay_buffer) -10, -1):
+            if len(snake_agent.replay_buffer[i]) != 5:
+                del snake_agent.replay_buffer[i]
         with open(f"{args.save}", "wb") as file:
             pickle.dump(snake_agent, file)
+        print(f"Save learning state in {args.save}")
 
 
 if __name__ == '__main__':

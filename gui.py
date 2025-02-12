@@ -127,7 +127,10 @@ def event_handler(board: environ.Board, buttons: tuple,
             return False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                return False 
+                return False
+            elif event.key == pygame.K_RETURN:
+                if metric["Session"] < metric["Total Session"]:
+                    snake.run_game_gui(board, snake_agent, metric, dontlearn)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # step_button
             if buttons[0] is not None and buttons[0].collidepoint(event.pos):
@@ -137,10 +140,12 @@ def event_handler(board: environ.Board, buttons: tuple,
                 if metric['Speed'] < 10 and metric["Session"] <\
                     metric["Total Session"]:
                     metric['Speed'] += 1
+                    param.LOOP["count"] = 0
             elif buttons[2].collidepoint(event.pos):
                 if metric['Speed'] > 1 and metric["Session"] <\
                     metric["Total Session"]:
                     metric['Speed'] -= 1
+                    param.LOOP["count"] = 0
     return True
 
 def draw_metric(screen: pygame.Surface, metric: dict,
@@ -384,7 +389,8 @@ def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
         if args.step_by_step is False and\
            metric["Session"] < metric["Total Session"]:
             param.LOOP["count"] += 1
-            if param.LOOP["count"] == param.LOOP["limit"]:
+            if param.LOOP["count"] ==\
+               (param.LOOP["limit"] // metric["Speed"]):
                 snake.run_game_gui(board, snake_agent,
                                    metric, args.dontlearn)
                 param.LOOP["count"] = 0

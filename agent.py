@@ -34,7 +34,7 @@ class Snake_Agent():
         # objective.
         self._main_network: MLPRegressor = MLPRegressor(
             hidden_layer_sizes=(10), warm_start=True,
-            max_iter=1000,
+            max_iter=1000, solver="sgd",
             random_state=param.RANDOM_STATE)
         self._target_network: MLPRegressor = MLPRegressor(
             hidden_layer_sizes=(10),
@@ -89,6 +89,11 @@ class Snake_Agent():
     def random_float(self) -> float:
         '''getter for random float'''
         return self._random_float
+    
+    @property
+    def replay_buffer(self) -> list:
+        '''getter for replay buffer'''
+        return self._replay_buffer
 
     def add_session(self, count: int) -> None:
         '''add session manually for initial state'''
@@ -97,7 +102,7 @@ class Snake_Agent():
     def _decay_e(self) -> None:
         '''inverse time decay algo to calculate e'''
         # set minimum of 0.2 for epsilon
-        self._e = max(self._e / (1 + (self._decay_scale * self._session)), 0.2)
+        self._e = max(self._e / (1 + (self._decay_scale * self._session)), 0.1)
 
     def _one_hot_encode_action(self) -> list:
         '''return array of one hot encoded action'''
@@ -131,6 +136,7 @@ class Snake_Agent():
             # if exploitation, predict a list of 4 Q_target values for
             # each action and choose the max
             action = self._max_q_value(state)
+            
         if self._dontlearn is False:
             # append latest state to end of replay buffer
             # without action encoded input
@@ -221,8 +227,9 @@ class Snake_Agent():
         # x = input state (list)
         if self._steps % param.FREQ_HUNDRED == 0 and\
             len(self._replay_buffer) > param.MAX_BATCH_HUNDRED:
-            x = [state[0] for state in random.sample(self._replay_buffer[:-1],
-                                                     param.MAX_BATCH_HUNDRED)]
+            x = [state[0] for state in random.sample(
+                self._replay_buffer[:-1], min(len(self._replay_buffer[:-1]),
+                                              param.MAX_BATCH_HUNDRED))]
             # y = reward + future reward
             y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
                               if len(state[4]) != 0 else 0))
