@@ -132,7 +132,7 @@ def event_handler(board: environ.Board, buttons: tuple,
             # step_button
             if buttons[0] is not None and buttons[0].collidepoint(event.pos):
                 if metric["Session"] < metric["Total Session"]:
-                    snake.run_game_step(board, snake_agent, metric, dontlearn)
+                    snake.run_game_gui(board, snake_agent, metric, dontlearn)
             elif buttons[1].collidepoint(event.pos):
                 if metric['Speed'] < 10 and metric["Session"] <\
                     metric["Total Session"]:
@@ -381,7 +381,14 @@ def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
             draw_game_over(screen, pixel_size)
         running = event_handler(board, buttons, metric,
                                 snake_agent, args.dontlearn)
-        pygame.display.flip()  
+        if args.step_by_step is False and\
+           metric["Session"] < metric["Total Session"]:
+            param.LOOP["count"] += 1
+            if param.LOOP["count"] == param.LOOP["limit"]:
+                snake.run_game_gui(board, snake_agent,
+                                   metric, args.dontlearn)
+                param.LOOP["count"] = 0
+        pygame.display.flip()
         height_pixel = 0
     # explicitly clean up resources once loop ends (ie close window)
     pygame.quit()

@@ -27,6 +27,10 @@ PADDING: int = 10
 BOARD_STATE: dict = {
     "state": []
 }
+LOOP: dict = {
+    "count": 0,
+    "limit": 60,
+}
 
 # MLP hyperparams
 RANDOM_STATE = 42

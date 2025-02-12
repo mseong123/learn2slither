@@ -62,7 +62,7 @@ def reset_metrics(metric: dict, board: environ.Board) -> int:
     metric["Duration"] = 0
     metric["Session"] += 1
 
-def run_game_step(board: environ.Board, snake_agent: agent.Snake_Agent,
+def run_game_gui(board: environ.Board, snake_agent: agent.Snake_Agent,
                   metric: dict, dontlearn: bool) -> None:
     '''function to run game step by step using GUI''' 
     if metric["Session"] == 0 and metric["Duration"] == 0:
@@ -169,8 +169,8 @@ def main():
     if args.visual == 'on':
         board.gui = True
         gui.init_gui(board, args, metric, snake_agent)
-        if args.step_by_step is False:
-            run_game(board, snake_agent, metric, args)
+        # if args.step_by_step is False:
+        #     run_game(board, snake_agent, metric, args)
     # otherwise no cap on speed of session/training
     else:
         run_game(board, snake_agent, metric, args)
