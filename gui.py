@@ -125,13 +125,18 @@ def run_game_step(board: environ.Board, snake_agent: agent.Snake_Agent,
         if metric["Session"] == 0 and metric["Duration"] == 0:
             state = board.get_initial_state()
             action = snake_agent.action([state])
+            # Since step by step, need to store persistent state somewhere
             param.BOARD_STATE["state"] = board.move(action)
             metric["Duration"] += 1
+            if param.BOARD_STATE["state"][2] is True:
+                snake_agent.add_session(1)
+                snake.reset_metrics(metric, board)
         else:
             action = snake_agent.action(param.BOARD_STATE["state"])
             param.BOARD_STATE["state"] = board.move(action)
             metric["Duration"] += 1
             if param.BOARD_STATE["state"][2] is True:
+                snake_agent.add_session(1)
                 snake.reset_metrics(metric, board)
     
 
@@ -188,6 +193,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
                             * param.EDGE_OFFSET * 2),
                 height_pixel))
             screen.blit(text, rect)
+            # render the following agent metrics on same height as game metrics
             if index == 0:
                 text = font.render(
                     f"Sessions : {snake_agent.session}",
@@ -235,7 +241,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
                 screen.blit(text, rect)
 
             height_pixel += param.TEXT_SIZE
-    # render current session length and duration inside snake game borders 
+    # render current session length and duration inside snake game borders
     font = pygame.font.Font(None, param.TEXT_SIZE - 5)
     text = font.render(f"Length: {len(board.snake)}", True, param.ORANGE)
     rect = text.get_rect(topright=(
@@ -247,6 +253,27 @@ def draw_metric(screen: pygame.Surface, metric: dict,
             pixel_size,
             (param.CELL_SIZE * 2) + param.TEXT_SIZE - 5))
     screen.blit(text, rect)
+    # render exploration/exploitation metrics for agent
+    font = pygame.font.Font(None, param.TEXT_SIZE)
+    text = font.render(
+        f"ε: {snake_agent.e:.1f} r: {snake_agent.random_float:.1f}",
+        True, param.GREEN)
+    rect = text.get_rect(topleft=(
+        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+        param.AGENT_OFFSET,
+        height_pixel))
+    screen.blit(text, rect)
+    height_pixel += param.TEXT_SIZE
+    text = font.render(
+        f"{"Exploration" if snake_agent.random_float < snake_agent.e
+           else "Exploitation"}",
+        True, param.GREEN)
+    rect = text.get_rect(topleft=(
+        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +
+        param.AGENT_OFFSET,
+        height_pixel))
+    screen.blit(text, rect)
+
       
 
 def draw_console(screen: pygame.Surface, args: argparse.Namespace,

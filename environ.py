@@ -307,8 +307,6 @@ class Board():
 
     def get_initial_state(self) -> list:
         '''return initial state before first move by snake.'''
-        if self._gui is True:
-            print("\nGAME START\n")
         return self._get_state()
 
     def _amend_snake(self, next_action: int, action: str) -> None:

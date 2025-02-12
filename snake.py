@@ -71,17 +71,21 @@ def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
     state: list = []
     action: int = 0
     while metric["Session"] <= metric["Total Session"]:
-        if metric["Session"] == 0:
+        if metric["Session"] == 0 and metric["Duration"] == 0:
             state = board.get_initial_state()
             action = snake_agent.action([state])
             state = board.move(action)
             metric["Duration"] += 1
+            if state[2] is True:
+                snake_agent.add_session(1)
+                reset_metrics(metric, board)
         else:
             action = snake_agent.action(state)
             state = board.move(action)
             metric["Duration"] += 1
             if state[2] is True:
-                reset_metrics(metric)
+                snake_agent.add_session(1)
+                reset_metrics(metric, board)
         if args.visual == 'on':
             time.sleep(1 / metric["Speed"])
     print(f"Game Over, max length = {metric["Max Length"]}, \
