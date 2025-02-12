@@ -96,9 +96,8 @@ class Snake_Agent():
 
     def _decay_e(self) -> None:
         '''inverse time decay algo to calculate e'''
-        # self._e *= math.exp(-self._decay_scale * self._session)
-        # inverse decay too fast, by session 4, e = 0.1
-        self._e = self._e / (1 + (self._decay_scale * self._session))
+        # set minimum of 0.2 for epsilon
+        self._e = max(self._e / (1 + (self._decay_scale * self._session)), 0.2)
 
     def _one_hot_encode_action(self) -> list:
         '''return array of one hot encoded action'''

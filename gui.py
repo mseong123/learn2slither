@@ -264,11 +264,18 @@ def draw_metric(screen: pygame.Surface, metric: dict,
     # render prev action for snake
     font = pygame.font.Font(None, param.TEXT_SIZE)
     if board.prev_action is not None:
-        prev = board.prev_action
-        color = param.GREEN if prev >= 0 else param.RED
-        text = font.render(
-            f"prev: {param.Action(prev).name if prev >= 0 else "DIED"}",
-            True, color)
+        color = None
+        result: str = None
+        if board.prev_action == -2:
+            result = "DIED"
+            color = param.RED
+        elif board.prev_action == -1:
+            result = "ILLEGAL MOVE"
+            color = param.RED
+        else:
+            result = param.Action(board.prev_action).name
+            color = param.GREEN
+        text = font.render(f"prev: {result}", True, color)
         rect = text.get_rect(topleft=(
             pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2),
             height_pixel))

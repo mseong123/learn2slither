@@ -11,6 +11,7 @@ class Board():
     def __init__(self, size: int = 10):
         self._size: int = size + 2  # to account for walls
         self._board: list = []
+        self._final_length: int = 0
         self._snake: list = []
         self._action: int = random.randint(0, len(param.Action) - 1)
         self._prev_action: int | None = None
@@ -55,9 +56,14 @@ class Board():
     def action(self) -> int:
         '''getter for current action'''
         return self._action
+    @property
+    def final_length(self) -> list:
+        '''getter for final length attribute'''
+        return self._final_length
 
     def reset_board(self) -> None:
         '''wrapper function to reset board and snake'''
+        self._final_length = len(self._snake)
         self._create_board()
         self._create_action()
         self._create_snake()
@@ -376,7 +382,7 @@ class Board():
         elif self._check_died(next_action) is True:
             self.reset_board()
             if self._gui is True:
-                self._prev_action = -1
+                self._prev_action = -2
                 print(f"\n{param.Action(next_action).name}")
                 print("\nDIED - RESET BOARD\n")
             reward = param.Reward.GAME_OVER.value

@@ -55,8 +55,8 @@ def get_metrics(args: argparse.Namespace) -> dict:
 
 def reset_metrics(metric: dict, board: environ.Board) -> int:
     '''function to check max length of snake when session ends'''
-    if len(board.snake) > metric["Max Length"]:
-        metric["Max Length"] = len(board.snake)
+    if board.final_length > metric["Max Length"]:
+        metric["Max Length"] = board.final_length
     if metric["Duration"] > metric["Max Duration"]:
         metric["Max Duration"] = metric["Duration"]
     metric["Duration"] = 0
