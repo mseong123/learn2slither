@@ -34,7 +34,7 @@ LOOP: dict = {
 
 # MLP hyperparams
 RANDOM_STATE = 42
-DECAY_SCALE = 0.01
+DECAY_SCALE = 0.0001
 # MAX_BATCH_SIZE 
 MAX_BATCH_TEN = 16
 MAX_BATCH_HUNDRED = 48
@@ -44,11 +44,12 @@ FREQ_HUNDRED = 4
 # BUFFER SIZE
 REPLAY_SIZE_ONE = 250
 REPLAY_SIZE_TEN = 2500
-REPLAY_SIZE_HUNDRED = 50000
+REPLAY_SIZE_HUNDRED = 15000
 # UPDATE TARGET NETWORK (no of steps)
 UPDATE_ONE = 10
 UPDATE_TEN = 50
-UPDATE_HUNDRED = 750
+UPDATE_HUNDRED = 150
+MIN_E = 0.1
 
 # environment parameters
 class State(Enum):
@@ -63,10 +64,10 @@ class State(Enum):
 
 class Reward(Enum):
     '''Reward enum'''
-    R_APPLE = -2
-    G_APPLE = 2
+    R_APPLE = -5
+    G_APPLE = 7
     GAME_OVER = -10
-    SPACE = -0.1
+    SPACE = -1
     ILLEGAL_MOVE = -20
 
 

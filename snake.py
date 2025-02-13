@@ -157,8 +157,10 @@ def main():
     # set params in agent to dontlearn if arg is set
     if args.dontlearn is True:
         snake_agent.dontlearn = True
+        snake_agent.e = 0
     else:
         snake_agent.dontlearn = False
+        snake_agent.e = param.MIN_E
     # -----------------------------------------------------
     # if GUI activated, board state appear on gui and speed of game/training
     # is human readable. If step_by_step activated, game controlled by console

@@ -34,7 +34,7 @@ class Snake_Agent():
         # objective.
         self._main_network: MLPRegressor = MLPRegressor(
             hidden_layer_sizes=(10), warm_start=True,
-            max_iter=1000, solver="sgd",
+            max_iter=1000, solver="adam",
             random_state=param.RANDOM_STATE)
         self._target_network: MLPRegressor = MLPRegressor(
             hidden_layer_sizes=(10),
@@ -85,6 +85,11 @@ class Snake_Agent():
         '''getter for epsilon'''
         return self._e
     
+    @e.setter
+    def e(self, e) -> None:
+        '''setter for epsilon'''
+        self._e = e
+    
     @property
     def random_float(self) -> float:
         '''getter for random float'''
@@ -101,8 +106,13 @@ class Snake_Agent():
 
     def _decay_e(self) -> None:
         '''inverse time decay algo to calculate e'''
-        # set minimum of 0.2 for epsilon
-        self._e = max(self._e / (1 + (self._decay_scale * self._session)), 0.1)
+        # set minimum epsilon
+        if self._dontlearn is False:
+            self._e = max(self._e /
+                        (1 + (self._decay_scale * self._session)),
+                        param.MIN_E)
+        else:
+            self._e = 0
 
     def _one_hot_encode_action(self) -> list:
         '''return array of one hot encoded action'''
@@ -149,7 +159,7 @@ class Snake_Agent():
                 self._replay_buffer[(len(self._replay_buffer)
                                     - 2)][0].extend(
                                         self._action[info[0]])
-                # if fatal is True, amend previous session state 
+                # if fatal is True, amend previous session state
                 if info[2] is True:
                     self._decay_e()
                     self._replay_buffer[len(self._replay_buffer)
@@ -164,6 +174,8 @@ class Snake_Agent():
             state.extend(self._action[i])
         q_target: list = [self._target_network.predict([state])
                           for state in state_action]
+        # print("q_target", q_target)
+        # print("index", q_target.index(max(q_target)))
         return q_target.index(max(q_target))
 
     def _train_one(self):
@@ -227,14 +239,17 @@ class Snake_Agent():
         # x = input state (list)
         if self._steps % param.FREQ_HUNDRED == 0 and\
             len(self._replay_buffer) > param.MAX_BATCH_HUNDRED:
-            x = [state[0] for state in random.sample(
-                self._replay_buffer[:-1], min(len(self._replay_buffer[:-1]),
-                                              param.MAX_BATCH_HUNDRED))]
+            random_sample = random.sample(self._replay_buffer[:-1], min(len(self._replay_buffer[:-1]), param.MAX_BATCH_HUNDRED))
+            x = [state[0] for state in random_sample]
+            
             # y = reward + future reward
+            # y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
+            #                   if len(state[4]) != 0 else 0))
+            #      for state in random.sample(self._replay_buffer[:-1],
+            #                                 param.MAX_BATCH_HUNDRED)]
             y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
                               if len(state[4]) != 0 else 0))
-                 for state in random.sample(self._replay_buffer[:-1],
-                                            param.MAX_BATCH_HUNDRED)]
+                  for state in random_sample]
             self._main_network.fit(x, y)
             self._training += 1
         # 3) transfer coefficients and weights to target network
@@ -249,12 +264,13 @@ class Snake_Agent():
         '''batch sample training from replay buffer. Training methodology
         changes incrementally based on total no. of sessions run by model
         (1, 10, 100) based on subject pdf'''
-        if self._session < 10:
-            self._train_one()
-        elif self._session < 100:
-            self._train_ten()
-        else:
-            self._train_hundred()
+        # if self._session < 10:
+        #     self._train_one()
+        # elif self._session < 100:
+        #     self._train_ten()
+        # else:
+            # self._train_hundred()
+        self._train_hundred()
            
 
     def action(self, info: list) -> int:
@@ -277,6 +293,7 @@ class Snake_Agent():
             self._train()
             self._steps += 1
         return action
+
 
 
 

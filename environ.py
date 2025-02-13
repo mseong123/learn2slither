@@ -181,21 +181,23 @@ class Board():
 
     def _get_state(self) -> list:
         '''function to get line of view (state) of 4 actions from head of
-        snake. State values are [dist to wall, dist to first green apple,
-        dist to red apple, dist to tail]'''
+        snake. State values are INVERSE of [dist to wall, dist to first 
+        green apple, dist to red apple, dist to tail]'''
         state: list = []
         # 4 actions following param.Action enum
         for i in range(len(param.Action)):
             # UP
             if i == 0:
                 # Distance to wall
-                state.append(self._snake[0][0] / self._size)
+                state.append(1 - (self._snake[0][0] / self._size))
                 # Distance to first green apple
                 g_apple_visible: int = 0
                 for j in range(self._snake[0][0] - 1, 0, -1):
                     if self._board[j][self._snake[0][1]] ==\
                             param.State.G_APPLE.value:
-                        state.append((self._snake[0][0] - j) / self._size)
+                        state.append(
+                            1 - ((self._snake[0][0] - j) / self._size)
+                            )
                         g_apple_visible = 1
                         break
                 if g_apple_visible == 0:
@@ -205,7 +207,9 @@ class Board():
                 for j in range(self._snake[0][0] - 1, 0, -1):
                     if self._board[j][self._snake[0][1]] ==\
                             param.State.R_APPLE.value:
-                        state.append((self._snake[0][0] - j) / self._size)
+                        state.append(
+                            1 - ((self._snake[0][0] - j) / self._size)
+                            )
                         r_apple_visible = 1
                         break
                 if r_apple_visible == 0:
@@ -214,7 +218,9 @@ class Board():
                 snake_visible: int = 0
                 for j in range(self._snake[0][0] - 1, 0, -1):
                     if (j, self._snake[0][1]) in self._snake:
-                        state.append((self._snake[0][0] - j) / self._size)
+                        state.append(
+                            1 - ((self._snake[0][0] - j) / self._size)
+                            )
                         snake_visible = 1
                         break
                 if snake_visible == 0:
@@ -222,14 +228,16 @@ class Board():
             # DOWN
             if i == 1:
                 # Distance to wall
-                state.append((len(self._board[0]) - 1 - self._snake[0][0])
-                             / self._size)
+                state.append(1 - ((len(self._board[0]) - 1 - self._snake[0][0])
+                             / self._size))
                 # Distance to first green apple
                 g_apple_visible: int = 0
                 for j in range(self._snake[0][0] + 1, len(self._board[0]) - 1):
                     if self._board[j][self._snake[0][1]] ==\
                             param.State.G_APPLE.value:
-                        state.append((j - self._snake[0][0]) / self._size)
+                        state.append(
+                            1 - ((j - self._snake[0][0]) / self._size)
+                        )
                         g_apple_visible = 1
                         break
                 if g_apple_visible == 0:
@@ -239,7 +247,9 @@ class Board():
                 for j in range(self._snake[0][0] + 1, len(self._board[0]) - 1):
                     if self._board[j][self._snake[0][1]] ==\
                             param.State.R_APPLE.value:
-                        state.append((j - self._snake[0][0]) / self._size)
+                        state.append(
+                            1 - ((j - self._snake[0][0]) / self._size)
+                            )
                         r_apple_visible = 1
                         break
                 if r_apple_visible == 0:
@@ -248,7 +258,9 @@ class Board():
                 snake_visible: int = 0
                 for j in range(self._snake[0][0] + 1, len(self._board[0]) - 1):
                     if (j, self._snake[0][1]) in self._snake:
-                        state.append((j - self._snake[0][0]) / self._size)
+                        state.append(
+                            1 - ((j - self._snake[0][0]) / self._size)
+                        )
                         snake_visible = 1
                         break
                 if snake_visible == 0:
@@ -256,13 +268,15 @@ class Board():
             # LEFT
             if i == 2:
                 # Distance to wall
-                state.append((self._snake[0][1]) / self._size)
+                state.append(1 - ((self._snake[0][1]) / self._size))
                 # Distance to first green apple
                 g_apple_visible: int = 0
                 for j in range(self._snake[0][1] - 1, 0, -1):
                     if self._board[self._snake[0][0]][j] ==\
                             param.State.G_APPLE.value:
-                        state.append((self._snake[0][1] - j) / self._size)
+                        state.append(
+                            1 - ((self._snake[0][1] - j) / self._size)
+                        )
                         g_apple_visible = 1
                         break
                 if g_apple_visible == 0:
@@ -272,7 +286,9 @@ class Board():
                 for j in range(self._snake[0][1] - 1, 0, -1):
                     if self._board[self._snake[0][0]][j] ==\
                             param.State.R_APPLE.value:
-                        state.append((self._snake[0][1] - j) / self._size)
+                        state.append(
+                            1 - ((self._snake[0][1] - j) / self._size)
+                        )
                         r_apple_visible = 1
                         break
                 if r_apple_visible == 0:
@@ -281,7 +297,9 @@ class Board():
                 snake_visible: int = 0
                 for j in range(self._snake[0][1] - 1, 0, -1):
                     if (self._snake[0][0], j) in self._snake:
-                        state.append((self._snake[0][1] - j) / self._size)
+                        state.append(
+                            1 - ((self._snake[0][1] - j) / self._size)
+                        )
                         snake_visible = 1
                         break
                 if snake_visible == 0:
@@ -289,14 +307,18 @@ class Board():
             # RIGHT
             if i == 3:
                 # Distance to wall
-                state.append((len(self._board[0]) - 1 - self._snake[0][1])
-                             / self._size)
+                state.append(
+                    1 - ((len(self._board[0]) - 1 - self._snake[0][1])
+                         / self._size)
+                    )
                 # Distance to first green apple
                 g_apple_visible: int = 0
                 for j in range(self._snake[0][1] + 1, len(self._board[0]) - 1):
                     if self._board[self._snake[0][0]][j] ==\
                             param.State.G_APPLE.value:
-                        state.append((j - self._snake[0][1]) / self._size)
+                        state.append(
+                            1 - ((j - self._snake[0][1]) / self._size)
+                        )
                         g_apple_visible = 1
                         break
                 if g_apple_visible == 0:
@@ -306,7 +328,9 @@ class Board():
                 for j in range(self._snake[0][1] + 1, len(self._board[0]) - 1):
                     if self._board[self._snake[0][0]][j] ==\
                             param.State.R_APPLE.value:
-                        state.append((j - self._snake[0][1]) / self._size)
+                        state.append(
+                            1 - ((j - self._snake[0][1]) / self._size)
+                        )
                         r_apple_visible = 1
                         break
                 if r_apple_visible == 0:
@@ -315,7 +339,9 @@ class Board():
                 snake_visible: int = 0
                 for j in range(self._snake[0][1] + 1, len(self._board[0]) - 1):
                     if (self._snake[0][0], j) in self._snake:
-                        state.append((j - self._snake[0][1]) / self._size)
+                        state.append(
+                            1 - ((j - self._snake[0][1]) / self._size)
+                        )
                         snake_visible = 1
                         break
                 if snake_visible == 0:
@@ -329,7 +355,7 @@ class Board():
     def _amend_snake(self, next_action: int, action: str) -> None:
         '''amend snake list of tuple positions'''
         next_row, next_col = self._get_next_pos(next_action)
-        if action == "lengthen": 
+        if action == "lengthen":
             temp_snake: list = self._snake.copy()
             self._snake: list = [(next_row, next_col), *temp_snake]
         elif action == "shorten":
