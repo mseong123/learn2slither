@@ -32,23 +32,22 @@ LOOP: dict = {
     "limit": 60,
 }
 
-# MLP hyperparams
+# MLP hyperparams - based on how complex environment is,
+# empirical data and rule of thumb. No real definite answer
+# similar to other ML problems. Using comparison to models
+# like cartwheel (simple problem) and atari DQN(more complex)
+# All the params below are based on simple problem ie cartwheel
 RANDOM_STATE = 42
+# after 200 session reduced to minimum which is 0.1
 DECAY_SCALE = 0.0001
 # MAX_BATCH_SIZE 
-MAX_BATCH_TEN = 16
 MAX_BATCH_HUNDRED = 48
 # TRAIN FREQUENCY (no of steps)
-FREQ_TEN = 2
-FREQ_HUNDRED = 4
+FREQ = 4
 # BUFFER SIZE
-REPLAY_SIZE_ONE = 250
-REPLAY_SIZE_TEN = 2500
-REPLAY_SIZE_HUNDRED = 15000
+REPLAY_SIZE = 25000
 # UPDATE TARGET NETWORK (no of steps)
-UPDATE_ONE = 10
-UPDATE_TEN = 50
-UPDATE_HUNDRED = 150
+UPDATE_NETWORK = 150
 MIN_E = 0.1
 
 # environment parameters
@@ -67,7 +66,7 @@ class Reward(Enum):
     R_APPLE = -5
     G_APPLE = 7
     GAME_OVER = -10
-    SPACE = -1
+    SPACE = 0.5
     ILLEGAL_MOVE = -20
 
 

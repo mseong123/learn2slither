@@ -10,7 +10,7 @@ import param
 class Snake_Agent():
     '''agent class'''
     def __init__(self, discount: float = 0.9,
-                 decay_scale: float = 0.1):
+                 decay_scale: float = 0.01):
         '''init function'''
         # discount factor between 0.9 and 0.99 as per standard implementation
         # and remain constant throughout training
@@ -18,11 +18,10 @@ class Snake_Agent():
         self._session: int = 0
         self._steps: int = 0
         self._speed: int = 1
-        # use inverse time decay for e greedy algo. Decay scale measures
-        # how fast e decays.
         self._decay_scale: int = decay_scale
         self._random_float: float = random.random()
         self._e: float = 1
+        self._prev_e: float = self._e
         # state of training at set interval to show at GUI
         self._training: int = 0
         # state of transferring weights to target network to show at GUI
@@ -31,7 +30,10 @@ class Snake_Agent():
         self._dontlearn: bool = False
         # initialise 2 MLP network (main and target). One is for training,
         # the other to generate Q target. To prevent chasing a changing 
-        # objective.
+        # objective. Warm_start means training continue from previous weight
+        # and learning state, if not it starts from scratch again. As per
+        # chatgpt use either adam or sgd because gradient based Liblinear
+        # doesnt work, i didn't verify.
         self._main_network: MLPRegressor = MLPRegressor(
             hidden_layer_sizes=(10), warm_start=True,
             max_iter=1000, solver="adam",
@@ -85,6 +87,16 @@ class Snake_Agent():
         '''getter for epsilon'''
         return self._e
     
+    @property
+    def prev_e(self) -> float:
+        '''getter for previous epsilon'''
+        return self._prev_e
+    
+    @prev_e.setter
+    def prev_e(self, value: float) -> None:
+        '''setter for prev_e'''
+        self._prev_e = value
+    
     @e.setter
     def e(self, e) -> None:
         '''setter for epsilon'''
@@ -105,14 +117,10 @@ class Snake_Agent():
         self._session += count
 
     def _decay_e(self) -> None:
-        '''inverse time decay algo to calculate e'''
-        # set minimum epsilon
-        if self._dontlearn is False:
-            self._e = max(self._e /
-                        (1 + (self._decay_scale * self._session)),
-                        param.MIN_E)
-        else:
-            self._e = 0
+        '''inverse time decay algo with min e'''
+        self._prev_e = self._e
+        self._e = max(self._e / (1 + (self._decay_scale * self._session)),
+                      param.MIN_E)
 
     def _one_hot_encode_action(self) -> list:
         '''return array of one hot encoded action'''
@@ -174,104 +182,43 @@ class Snake_Agent():
             state.extend(self._action[i])
         q_target: list = [self._target_network.predict([state])
                           for state in state_action]
-        # print("q_target", q_target)
-        # print("index", q_target.index(max(q_target)))
         return q_target.index(max(q_target))
 
-    def _train_one(self):
-        '''training methodology for < 10 session'''
-        # 1) pop past experiences if exceed threshold
-        if len(self._replay_buffer) > param.REPLAY_SIZE_ONE:
-            del self._replay_buffer[0]
-        # 2) train every step for session < 10
-        if len(self._replay_buffer) > 1:
-            # x = input state (list)
-            x = [state[0] for state in self._replay_buffer[:-1]]
-            # y = reward + future max Q value
-            y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
-                              if len(state[4]) != 0 else 0))
-                 for state in self._replay_buffer[:-1]]
-            self._main_network.fit(x, y)
-            self._training += 1
-        # 3) transfer coefficients and weights to target network
-        if self._steps > 1 and self._steps % param.UPDATE_ONE == 0:
-            self._target_network.coefs_ = [
-                np.copy(w) for w in self._main_network.coefs_]
-            self._target_network.intercepts_ = [
-                np.copy(b) for b in self._main_network.intercepts_]
-            self._transfer_weight += 1
-
-
-    def _train_ten(self):
-        '''training methodology for < 100 session'''
-        # 1) pop past experiences if exceed threshold
-        if len(self._replay_buffer) > param.REPLAY_SIZE_TEN:
-            del self._replay_buffer[0]
-        # 2) training at interval for session < 100
-        # x = input state (list)
-        if self._steps % param.FREQ_TEN == 0 and\
-                len(self._replay_buffer) > param.MAX_BATCH_TEN:
-            x = [state[0] for state in random.sample(
-                 self._replay_buffer[:-1], param.MAX_BATCH_TEN)]
-            # y = reward + future reward
-            y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
-                              if len(state[4]) != 0 else 0))
-                 for state in random.sample(
-                      self._replay_buffer[:-1],
-                      param.MAX_BATCH_TEN)]
-            self._main_network.fit(x, y)
-            self._training += 1
-        # 3) transfer coefficients and weights to target network
-        if self._steps > 1 and self._steps % param.UPDATE_TEN == 0:
-            self._target_network.coefs_ = [
-                np.copy(w) for w in self._main_network.coefs_]
-            self._target_network.intercepts_ = [
-                np.copy(b) for b in self._main_network.intercepts_]
-            self._transfer_weight += 1
 
 
     def _train_hundred(self):
         '''training methodology for >= 100 session'''
+        
+    def _train(self) -> None:
+        '''training methodology'''
         # 1) pop past experiences if exceed threshold
-        if len(self._replay_buffer) > param.REPLAY_SIZE_HUNDRED:
+        if len(self._replay_buffer) > param.REPLAY_SIZE:
             del self._replay_buffer[0]
-        # 2) training at interval for session >= 100
-        # x = input state (list)
-        if self._steps % param.FREQ_HUNDRED == 0 and\
-            len(self._replay_buffer) > param.MAX_BATCH_HUNDRED:
-            random_sample = random.sample(self._replay_buffer[:-1], min(len(self._replay_buffer[:-1]), param.MAX_BATCH_HUNDRED))
+        # 2) get random sample from replay buffer and fit them.
+        if self._steps % param.FREQ == 0 and\
+           len(self._replay_buffer) > param.MAX_BATCH_HUNDRED:
+            random_sample = random.sample(
+                self._replay_buffer[:-1],
+                min(len(self._replay_buffer[:-1]), param.MAX_BATCH_HUNDRED)
+                )
+            # x = input states(distance for each action and
+            # one hot encode action)
             x = [state[0] for state in random_sample]
             
             # y = reward + future reward
-            # y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
-            #                   if len(state[4]) != 0 else 0))
-            #      for state in random.sample(self._replay_buffer[:-1],
-            #                                 param.MAX_BATCH_HUNDRED)]
             y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
                               if len(state[4]) != 0 else 0))
-                  for state in random_sample]
+                 for state in random_sample]
             self._main_network.fit(x, y)
             self._training += 1
         # 3) transfer coefficients and weights to target network
-        if self._steps > 1 and self._steps % param.UPDATE_HUNDRED == 0:
+        if self._steps > 1 and self._steps % param.UPDATE_NETWORK == 0:
             self._target_network.coefs_ = [
                 np.copy(w) for w in self._main_network.coefs_]
             self._target_network.intercepts_ = [
                 np.copy(b) for b in self._main_network.intercepts_]
             self._transfer_weight += 1
 
-    def _train(self) -> None:
-        '''batch sample training from replay buffer. Training methodology
-        changes incrementally based on total no. of sessions run by model
-        (1, 10, 100) based on subject pdf'''
-        # if self._session < 10:
-        #     self._train_one()
-        # elif self._session < 100:
-        #     self._train_ten()
-        # else:
-            # self._train_hundred()
-        self._train_hundred()
-           
 
     def action(self, info: list) -> int:
         '''outputs an action based on info passed by environment
