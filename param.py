@@ -50,7 +50,7 @@ REPLAY_SIZE = 40000
 UPDATE_NETWORK = 150
 MIN_E = 0.1
 # looping threshold
-MAX_LOOP = 5
+MAX_LOOP = 3
 
 # environment parameters
 class State(Enum):
