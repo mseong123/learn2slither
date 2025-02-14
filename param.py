@@ -38,9 +38,9 @@ LOOP: dict = {
 # like cartwheel (simple problem) and atari DQN(more complex)
 # All the params below are based on simple problem ie cartwheel
 RANDOM_STATE = 42
-# after 200 session reduced to minimum which is 0.1
-DECAY_SCALE = 0.0001
-# MAX_BATCH_SIZE 
+# after 500 session reduced to 0.3
+DECAY_SCALE = 0.00001
+# MAX_BATCH_SIZE
 MAX_BATCH_HUNDRED = 48
 # TRAIN FREQUENCY (no of steps)
 FREQ = 4
@@ -65,8 +65,8 @@ class Reward(Enum):
     '''Reward enum'''
     R_APPLE = -5
     G_APPLE = 7
-    GAME_OVER = -10
-    SPACE = 0.5
+    GAME_OVER = -13
+    SPACE = -0.2
     ILLEGAL_MOVE = -20
 
 

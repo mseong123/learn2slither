@@ -185,10 +185,6 @@ class Snake_Agent():
         return q_target.index(max(q_target))
 
 
-
-    def _train_hundred(self):
-        '''training methodology for >= 100 session'''
-        
     def _train(self) -> None:
         '''training methodology'''
         # 1) pop past experiences if exceed threshold
