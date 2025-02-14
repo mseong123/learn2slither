@@ -1,7 +1,6 @@
 '''Agent Class definition using Deep Q Learning and e-greedy approach(exploration vs exploitation)'''
 
 import random
-import math
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np

@@ -1,14 +1,14 @@
-'''main script to train and run model simulation with optional GUI implementation'''
+'''main script to train and run model simulation with optional GUI
+implementation'''
 
 import argparse
 import os
-import time
 import pickle
-import pygame
 import param
 import environ
 import gui
 import agent
+
 
 def define_args() -> argparse.Namespace:
     """define arguments in command line"""
@@ -16,8 +16,7 @@ def define_args() -> argparse.Namespace:
         description="A reinforcement learning script for the training and\
         simulation of a snake game.",
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("--visual",
-                        type=str, help=(
+    parser.add_argument("--visual", type=str, help=(
         "enable GUI for snake game (on/off).")
     )
     parser.add_argument("--load", type=str, help=(
@@ -38,6 +37,9 @@ def define_args() -> argparse.Namespace:
     parser.add_argument("--boardsize", default=10, type=int, help=(
         "board size (not including walls). Min size = 10\n"
         "default = 10 grid"
+    ))
+    parser.add_argument("--e", type=float, help=(
+        f"epsilon value. Max size = 1. Min size = {param.MIN_E}\n"
     ))
     return parser.parse_args()
 
@@ -133,6 +135,8 @@ def main():
     args: argparse.Namespace = define_args()
     metric: dict = get_metrics(args)
     board: environ.Board = environ.Board(size=args.boardsize)
+    # ------------------------------------------------------
+    # ERROR CHECKING OF ARGUMENT COMBINATIONS
     # At minimum need grid size of 5 since subject.pdf snake have length of 3
     if args.boardsize < 5:
         print("Board size too small. Minimum = 5 grid")
@@ -143,13 +147,23 @@ def main():
         print("Please provide no. of sessions to run")
         return
     metric["Total Session"] = args.sessions
+    # epsilon range
+    if args.e is not None and (args.e > 1
+                               or args.e < param.MIN_E):
+        print(f"epsilon has to be <= 1 and >= {param.MIN_E}")
+        return
+    if args.dontlearn is True and args.save is not None:
+        print("can't save model when dontlearn option is enabled")
+        return
+    # ------------------------------------------------------
+    # INITIALIZE MODEL
     if args.load is None:
         # if no loading argument, create a new agent instance
         snake_agent = agent.Snake_Agent(decay_scale=param.DECAY_SCALE)
     else:
         if os.path.exists(args.load):
             with open(args.load, "rb") as file:
-                snake_agent = pickle.load(file) 
+                snake_agent = pickle.load(file)
             print(f"Load trained model from {args.load}")
         else:
             print("Problem loading model or model doesn't exist. Exiting")
@@ -159,11 +173,14 @@ def main():
         snake_agent.dontlearn = True
         snake_agent.prev_e = snake_agent.e
         snake_agent.e = 0
-
     else:
         snake_agent.dontlearn = False
         snake_agent.e = snake_agent.prev_e
+    # can set epsilon manually ie if want to continue training on another board
+    if args.e is not None:
+        snake_agent.e = args.e
     # -----------------------------------------------------
+    # GAMEPLAY
     # if GUI activated, board state appear on gui and speed of game/training
     # is human readable. If step_by_step activated, game controlled by console
     # in GUI
@@ -177,7 +194,7 @@ def main():
         run_game(board, snake_agent, metric, args)
     if args.save is not None:
         for i in range(len(snake_agent.replay_buffer) - 1,
-                       len(snake_agent.replay_buffer) -10, -1):
+                       len(snake_agent.replay_buffer) - 10, -1):
             if len(snake_agent.replay_buffer[i]) != 5:
                 del snake_agent.replay_buffer[i]
         with open(f"{args.save}", "wb") as file:
