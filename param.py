@@ -32,7 +32,7 @@ LOOP: dict = {
     "limit": 60,
 }
 
-# MLP hyperparams - based on how complex environment is,
+# Agent hyperparams - based on how complex environment is,
 # empirical data and rule of thumb. No real definite answer
 # similar to other ML problems. Using comparison to models
 # like cartwheel (simple problem) and atari DQN(more complex)
@@ -49,6 +49,8 @@ REPLAY_SIZE = 40000
 # UPDATE TARGET NETWORK (no of steps)
 UPDATE_NETWORK = 150
 MIN_E = 0.1
+# looping threshold
+MAX_LOOP = 5
 
 # environment parameters
 class State(Enum):

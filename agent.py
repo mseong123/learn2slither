@@ -1,6 +1,8 @@
 '''Agent Class definition using Deep Q Learning and e-greedy approach(exploration vs exploitation)'''
 
 import random
+from collections import deque, Counter
+import hashlib
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
@@ -28,7 +30,7 @@ class Snake_Agent():
         # dontlearn state
         self._dontlearn: bool = False
         # initialise 2 MLP network (main and target). One is for training,
-        # the other to generate Q target. To prevent chasing a changing 
+        # the other to generate Q target. To prevent chasing a changing
         # objective. Warm_start means training continue from previous weight
         # and learning state, if not it starts from scratch again. As per
         # chatgpt use either adam or sgd because gradient based Liblinear
@@ -45,11 +47,14 @@ class Snake_Agent():
         # replay buffer would have [[state], action, reward, terminal bool,
         # [next_state]] state
         self._replay_buffer: list[list] = []
+        # attribute for loop circuit breaker
+        self._recent_states: deque = deque(maxlen = 100)
+        self._state_counter: Counter = Counter()
 
     @property
     def session(self) -> int:
         '''getter for session'''
-        return self._session 
+        return self._session
 
     @property
     def steps(self) -> int:
@@ -70,12 +75,12 @@ class Snake_Agent():
     def training(self) -> int:
         '''getter for training'''
         return self._training
-    
+ 
     @property
     def dontlearn(self) -> bool:
         '''getter for dontlearn'''
         return self._dontlearn
-    
+ 
     @dontlearn.setter
     def dontlearn(self, state: bool) -> None:
         '''setter for dontlearn'''
@@ -95,17 +100,17 @@ class Snake_Agent():
     def prev_e(self, value: float) -> None:
         '''setter for prev_e'''
         self._prev_e = value
-    
+
     @e.setter
     def e(self, e) -> None:
         '''setter for epsilon'''
         self._e = e
-    
+
     @property
     def random_float(self) -> float:
         '''getter for random float'''
         return self._random_float
-    
+
     @property
     def replay_buffer(self) -> list:
         '''getter for replay buffer'''
@@ -181,8 +186,45 @@ class Snake_Agent():
             state.extend(self._action[i])
         q_target: list = [self._target_network.predict([state])
                           for state in state_action]
+        # If not training, ie full exploitation, need mechanism
+        # to break out of loop due to sparse rewards in larger maps
+        # training has exploration so can break out if needed. Can't
+        # train 100% to be able to break out of loop
+        if self._dontlearn is True and\
+           self._is_looping(state.copy()) is True:
+            # sort by indices based on largest to smallest q_target value
+            sorted_indices = sorted(
+                range(len(q_target)), key=lambda i: q_target[i], reverse=True
+                )
+            # pick second largest value INDEX
+            print("loop breakout")
+            return sorted_indices[1]
         return q_target.index(max(q_target))
 
+    def _hash_state(self, state: list):
+        """Create a unique hash of the snake's state."""
+        state_str = f"{state}"
+        # Compact 128-bit hash
+        return hashlib.md5(state_str.encode()).hexdigest()
+
+    def _is_looping(self, state: list):
+        state = self._hash_state(state)
+        
+        # Update state frequency
+        self._state_counter[state] += 1
+        self._recent_states.append(state)
+        
+        # Remove oldest state when deque is full
+        if len(self._recent_states) == self._recent_states.maxlen:
+            oldest_state = self._recent_states[0]
+            self._state_counter[oldest_state] -= 1
+            if self._state_counter[oldest_state] == 0:
+                del self._state_counter[oldest_state]  # Clean up memory
+ 
+        # Check if state occurs more than threshold
+        return self._state_counter[state] > param.MAX_LOOP
+
+        
 
     def _train(self) -> None:
         '''training methodology'''
