@@ -17,12 +17,13 @@ class Snake_Agent():
         # and remain constant throughout training
         self._discount: float = discount
         self._session: int = 0
+        self._total_session: int = 1
+        self._curr_session: int = 0
         self._steps: int = 0
         self._speed: int = 1
         self._decay_scale: int = decay_scale
         self._random_float: float = random.random()
         self._e: float = 1
-        self._prev_e: float = self._e
         # state of training at set interval to show at GUI
         self._training: int = 0
         # state of transferring weights to target network to show at GUI
@@ -91,16 +92,6 @@ class Snake_Agent():
         '''getter for epsilon'''
         return self._e
     
-    @property
-    def prev_e(self) -> float:
-        '''getter for previous epsilon'''
-        return self._prev_e
-    
-    @prev_e.setter
-    def prev_e(self, value: float) -> None:
-        '''setter for prev_e'''
-        self._prev_e = value
-
     @e.setter
     def e(self, e) -> None:
         '''setter for epsilon'''
@@ -115,16 +106,38 @@ class Snake_Agent():
     def replay_buffer(self) -> list:
         '''getter for replay buffer'''
         return self._replay_buffer
+    
+    @property
+    def total_session(self) -> int:
+        '''getter for total session'''
+        return self._total_session
 
+    @total_session.setter
+    def total_session(self, value) -> None:
+        '''setter for total_session'''
+        self._total_session = value
+
+    @property
+    def curr_session(self) -> int:
+        '''getter for current session'''
+        return self._curr_session
+    
+    @curr_session.setter
+    def curr_session(self, value) -> None:
+        '''setter for current_session'''
+        self._curr_session = value
+    
     def add_session(self, count: int) -> None:
         '''add session manually for initial state'''
         self._session += count
+        self._curr_session += count
 
     def _decay_e(self) -> None:
-        '''inverse time decay algo with min e'''
-        self._prev_e = self._e
-        self._e = max(self._e / (1 + (self._decay_scale * self._session)),
-                      param.MIN_E)
+        '''inverse time decay algo'''
+        adjusted_scale = self._decay_scale / self._total_session
+        self._e = self._e / (1 + (
+            adjusted_scale * self._curr_session)
+            )
 
     def _one_hot_encode_action(self) -> list:
         '''return array of one hot encoded action'''

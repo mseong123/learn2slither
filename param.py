@@ -38,8 +38,8 @@ LOOP: dict = {
 # like cartwheel (simple problem) and atari DQN(more complex)
 # All the params below are based on simple problem ie cartwheel
 RANDOM_STATE = 42
-# after 500 session reduced to 0.3
-DECAY_SCALE = 0.00001
+# quite evenly scaled across total sessions with min 0.1
+DECAY_SCALE = 0.05
 # MAX_BATCH_SIZE
 MAX_BATCH_HUNDRED = 48
 # TRAIN FREQUENCY (no of steps)
@@ -48,9 +48,10 @@ FREQ = 4
 REPLAY_SIZE = 40000
 # UPDATE TARGET NETWORK (no of steps)
 UPDATE_NETWORK = 150
-MIN_E = 0.1
 # looping threshold
 MAX_LOOP = 3
+DEFAULT_E = 1
+MIN_E = 0
 
 # environment parameters
 class State(Enum):

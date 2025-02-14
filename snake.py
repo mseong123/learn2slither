@@ -171,14 +171,17 @@ def main():
     # set params in agent to dontlearn if arg is set
     if args.dontlearn is True:
         snake_agent.dontlearn = True
-        snake_agent.prev_e = snake_agent.e
         snake_agent.e = 0
     else:
         snake_agent.dontlearn = False
-        snake_agent.e = snake_agent.prev_e
+        snake_agent.e = param.DEFAULT_E
     # can set epsilon manually ie if want to continue training on another board
     if args.e is not None:
         snake_agent.e = args.e
+    # set current session and total session for this program run
+    # in snake instance for purpose of decaying epsilon
+    snake_agent.total_session = args.sessions
+    snake_agent.curr_session = 1
     # -----------------------------------------------------
     # GAMEPLAY
     # if GUI activated, board state appear on gui and speed of game/training
