@@ -39,7 +39,7 @@ LOOP: dict = {
 # All the params below are based on simple problem ie cartwheel
 RANDOM_STATE = 42
 # quite evenly scaled across total sessions with min 0.1
-DECAY_SCALE = 0.05
+DECAY_SCALE = 0.0005
 # MAX_BATCH_SIZE
 MAX_BATCH_HUNDRED = 48
 # TRAIN FREQUENCY (no of steps)
@@ -51,7 +51,7 @@ UPDATE_NETWORK = 150
 # looping threshold
 MAX_LOOP = 3
 DEFAULT_E = 1
-MIN_E = 0
+MIN_E = 0.1
 
 # environment parameters
 class State(Enum):
@@ -66,11 +66,11 @@ class State(Enum):
 
 class Reward(Enum):
     '''Reward enum'''
-    R_APPLE = -5
-    G_APPLE = 7
-    GAME_OVER = -13
+    R_APPLE = -20
+    G_APPLE = 25
+    GAME_OVER = -40
     SPACE = -0.2
-    ILLEGAL_MOVE = -20
+    ILLEGAL_MOVE = -40
 
 
 class Action(Enum):

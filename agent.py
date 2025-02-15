@@ -21,7 +21,8 @@ class Snake_Agent():
         self._curr_session: int = 0
         self._steps: int = 0
         self._speed: int = 1
-        self._decay_scale: int = decay_scale
+        self._decay_scale: float = decay_scale
+        self.a_decay_scale: float = 0
         self._random_float: float = random.random()
         self._e: float = 1
         # state of training at set interval to show at GUI
@@ -38,7 +39,7 @@ class Snake_Agent():
         # doesnt work, i didn't verify.
         self._main_network: MLPRegressor = MLPRegressor(
             hidden_layer_sizes=(10), warm_start=True,
-            max_iter=1000, solver="adam",
+            max_iter=1000, solver="sgd",
             random_state=param.RANDOM_STATE)
         self._target_network: MLPRegressor = MLPRegressor(
             hidden_layer_sizes=(10),
@@ -114,8 +115,10 @@ class Snake_Agent():
 
     @total_session.setter
     def total_session(self, value) -> None:
-        '''setter for total_session'''
+        '''setter for total_session
+        also adjust a_decay_scale when total value is given'''
         self._total_session = value
+        self._a_decay_scale = self._decay_scale / value
 
     @property
     def curr_session(self) -> int:
@@ -133,11 +136,10 @@ class Snake_Agent():
         self._curr_session += count
 
     def _decay_e(self) -> None:
-        '''inverse time decay algo'''
-        adjusted_scale = self._decay_scale / self._total_session
-        self._e = self._e / (1 + (
-            adjusted_scale * self._curr_session)
-            )
+        '''LINEAR decay algo'''
+        self._e = max(param.DEFAULT_E * (1 - (
+            self.curr_session / self._total_session)
+        ), param.MIN_E)
 
     def _one_hot_encode_action(self) -> list:
         '''return array of one hot encoded action'''
