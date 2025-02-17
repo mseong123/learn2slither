@@ -277,9 +277,10 @@ def draw_metric(screen: pygame.Surface, metric: dict,
         pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2),
         height_pixel))
     screen.blit(text, rect)
+    text_value = "Exploration" if snake_agent.random_float < snake_agent.e\
+                 else "Exploitation"
     text = font.render(
-        f"{"Exploration" if snake_agent.random_float < snake_agent.e
-           else "Exploitation"}",
+        text_value,
         True, param.GREEN)
     rect = text.get_rect(topleft=(
         pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2) +

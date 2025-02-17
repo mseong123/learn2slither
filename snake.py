@@ -81,8 +81,8 @@ def run_game_gui(board: environ.Board, snake_agent: agent.Snake_Agent,
                 snake_agent.add_session(1)
             reset_metrics(metric, board)
         if metric["Session"] == metric["Total Session"]:
-            print(f"Game Over, max length = {metric["Max Length"]}, \
-            max duration = {metric["Max Duration"]}")
+            print(f"Game Over, max length = {metric["Max Length"]}")
+            print(f"max duration = {metric["Max Duration"]}")
     else:
         action = snake_agent.action(param.BOARD_STATE["state"])
         param.BOARD_STATE["state"] = board.move(action)
@@ -92,8 +92,8 @@ def run_game_gui(board: environ.Board, snake_agent: agent.Snake_Agent,
                 snake_agent.add_session(1)
             reset_metrics(metric, board)
         if metric["Session"] == metric["Total Session"]:
-            print(f"Game Over, max length = {metric["Max Length"]}, \
-            max duration = {metric["Max Duration"]}")
+            print(f"Game Over, max length = {metric["Max Length"]}")
+            print(f"max duration = {metric["Max Duration"]}")
 
 
 def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
