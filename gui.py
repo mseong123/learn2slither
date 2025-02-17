@@ -235,7 +235,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
             pixel_size,
             param.CELL_SIZE * 2))
     screen.blit(text, rect)
-    text = font.render(f"Duration: {metric["Duration"]}", True, param.ORANGE)
+    text = font.render(f"Duration: {metric['Duration']}", True, param.ORANGE)
     rect = text.get_rect(topright=(
             pixel_size,
             (param.CELL_SIZE * 2) + param.TEXT_SIZE - 5))
