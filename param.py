@@ -52,6 +52,7 @@ MAX_LOOP = 3
 DEFAULT_E = 1
 MIN_E = 0.1
 
+
 # environment parameters
 class State(Enum):
     '''State enum'''

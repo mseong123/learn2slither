@@ -1,6 +1,5 @@
 '''functions to run pygame GUI'''
 
-import time
 import argparse
 import pygame
 import environ
@@ -11,6 +10,7 @@ import snake
 # global variable to keep track of height of sidebar items, hence can render
 # items dynamically
 height_pixel: int = 0
+
 
 def draw_wall(screen: pygame.Surface, board: environ.Board,
               index_row: int, index_col: int) -> None:
@@ -97,24 +97,24 @@ def draw_board(screen: pygame.Surface, board: environ.Board) -> None:
                                  border_radius=5)
     height_pixel += param.EDGE_OFFSET * param.CELL_SIZE
 
-def draw_snake(screen: pygame.Surface, snake: list) -> None:
+
+def draw_snake(screen: pygame.Surface, snake_list: list) -> None:
     '''draw snake'''
-    for index_snake, snake in enumerate(snake):
+    for index_snake, snake_v in enumerate(snake_list):
         if index_snake == 0:
             pygame.draw.rect(screen, param.DARK_BLUE,
-                             ((snake[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
-                              (snake[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                             ((snake_v[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                              (snake_v[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
                               param.CELL_SIZE,
                               param.CELL_SIZE),
                              border_radius=5)
         else:
             pygame.draw.rect(screen, param.BLUE,
-                             ((snake[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
-                              (snake[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                             ((snake_v[1] + param.EDGE_OFFSET)*param.CELL_SIZE,
+                              (snake_v[0] + param.EDGE_OFFSET)*param.CELL_SIZE,
                               param.CELL_SIZE,
                               param.CELL_SIZE),
                              border_radius=5)
-
 
 
 def event_handler(board: environ.Board, buttons: tuple,
@@ -138,15 +138,16 @@ def event_handler(board: environ.Board, buttons: tuple,
                     snake.run_game_gui(board, snake_agent, metric, dontlearn)
             elif buttons[1].collidepoint(event.pos):
                 if metric['Speed'] < 10 and metric["Session"] <\
-                    metric["Total Session"]:
+                   metric["Total Session"]:
                     metric['Speed'] += 1
                     param.LOOP["count"] = 0
             elif buttons[2].collidepoint(event.pos):
                 if metric['Speed'] > 1 and metric["Session"] <\
-                    metric["Total Session"]:
+                   metric["Total Session"]:
                     metric['Speed'] -= 1
                     param.LOOP["count"] = 0
     return True
+
 
 def draw_metric(screen: pygame.Surface, metric: dict,
                 pixel_size: int, snake_agent: agent.Snake_Agent,
@@ -176,7 +177,7 @@ def draw_metric(screen: pygame.Surface, metric: dict,
             text = font.render(f"{key} : {value}", True, param.ORANGE)
             rect = text.get_rect(topleft=(
                 pixel_size + (param.CELL_SIZE
-                            * param.EDGE_OFFSET * 2),
+                              * param.EDGE_OFFSET * 2),
                 height_pixel))
             screen.blit(text, rect)
             # render the following agent metrics on same height as game metrics
@@ -258,7 +259,6 @@ def draw_metric(screen: pygame.Surface, metric: dict,
             pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2),
             height_pixel))
         screen.blit(text, rect)
- 
     # render exploration/exploitation metrics for agent
     text = font.render(
         f"ε: {snake_agent.e:.1f} r: {snake_agent.random_float:.1f}",
@@ -287,7 +287,6 @@ def draw_metric(screen: pygame.Surface, metric: dict,
         height_pixel))
     screen.blit(text, rect)
 
-      
 
 def draw_console(screen: pygame.Surface, args: argparse.Namespace,
                  pixel_size: int):
@@ -339,7 +338,7 @@ def draw_console(screen: pygame.Surface, args: argparse.Namespace,
                                   (param.CELL_SIZE *
                                    param.EDGE_OFFSET * 2),
                                   height_pixel + param.BUTTON_PADDING,
-                                  param.BUTTON_WIDTH, param.BUTTON_HEIGHT) 
+                                  param.BUTTON_WIDTH, param.BUTTON_HEIGHT)
         pygame.draw.rect(screen, param.GREEN, step_button, border_radius=5)
         font = pygame.font.Font(None, param.TEXT_SIZE)
         step_font = font.render("NEXT STEP", True, param.DARK_BLUE)
@@ -352,6 +351,7 @@ def draw_console(screen: pygame.Surface, args: argparse.Namespace,
         screen.blit(step_font, step_font_rect)
     return (step_button, up_button, down_button)
 
+
 def draw_game_over(screen: pygame.Surface, pixel_size: int) -> None:
     '''draw Game Over screen'''
     font = pygame.font.Font(None, param.HEADER_SIZE * 2)
@@ -362,9 +362,11 @@ def draw_game_over(screen: pygame.Surface, pixel_size: int) -> None:
     )
     screen.blit(game_over_font, game_over_font_rect)
 
+
 def scale_image(image, screen_size):
     """Resize image to fit the screen."""
     return pygame.transform.scale(image, screen_size)
+
 
 def draw_lobby_element(screen, login_button):
     '''draw title and start button'''
@@ -376,7 +378,7 @@ def draw_lobby_element(screen, login_button):
         (size[1] - (param.HEADER_SIZE * 2)) // 2
         ))
     screen.blit(header, header_rect)
-    pygame.draw.rect(screen, param.ORANGE, login_button, border_radius=5) 
+    pygame.draw.rect(screen, param.ORANGE, login_button, border_radius=5)
     font = pygame.font.Font(None, int(param.HEADER_SIZE * 1.5))
     header = font.render("START", True, param.WHITE)
     header_rect = header.get_rect(center=(
@@ -446,12 +448,12 @@ def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
             running = event_handler(board, buttons, metric,
                                     snake_agent, args.dontlearn)
             if args.step_by_step is False and\
-            metric["Session"] < metric["Total Session"]:
+               metric["Session"] < metric["Total Session"]:
                 param.LOOP["count"] += 1
                 if param.LOOP["count"] ==\
-                (param.LOOP["limit"] // metric["Speed"]):
+                   (param.LOOP["limit"] // metric["Speed"]):
                     snake.run_game_gui(board, snake_agent,
-                                    metric, args.dontlearn)
+                                       metric, args.dontlearn)
                     param.LOOP["count"] = 0
             pygame.display.flip()
             height_pixel = 0

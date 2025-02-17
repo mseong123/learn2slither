@@ -21,28 +21,26 @@ class Board():
         self._gui: bool = False
         self.reset_board()
 
-
-
     @property
     def board(self) -> list:
         '''getter for board attribute'''
         return self._board
- 
+
     @property
     def snake(self) -> list:
         '''getter for snake attribute'''
         return self._snake
-    
+
     @property
     def size(self) -> int:
         '''getter for board attribute'''
         return self._size
-     
+
     @property
     def gui(self) -> int:
         '''getter for gui option'''
         return self._gui
-    
+
     @gui.setter
     def gui(self, switch: bool) -> None:
         '''setter for gui option'''
@@ -67,7 +65,7 @@ class Board():
     def lobby(self) -> bool:
         '''getter for lobby attribute'''
         return self._lobby
-    
+
     @lobby.setter
     def lobby(self, value: bool) -> None:
         '''setter for gui option'''
@@ -82,7 +80,6 @@ class Board():
         self._create_apple(param.State.G_APPLE.value)
         self._create_apple(param.State.G_APPLE.value)
         self._create_apple(param.State.R_APPLE.value)
-
 
     def _create_action(self) -> None:
         '''generate random action of snake'''
@@ -101,7 +98,7 @@ class Board():
             self._board[rand_row_pos][rand_col_pos] = param.State.G_APPLE.value
         else:
             self._board[rand_row_pos][rand_col_pos] = param.State.R_APPLE.value
-         
+
     def _create_board(self) -> None:
         '''generate board(2D array) with walls and empty space'''
         self._board: list = []
@@ -109,12 +106,12 @@ class Board():
             row: list = []
             for j in range(self._size):
                 if i == 0 or i == self._size - 1 or j == 0 or\
-                    j == self._size - 1:
+                   j == self._size - 1:
                     row.append(param.State.WALL.value)
                 else:
                     row.append(param.State.SPACE.value)
             self._board.append(row)
-    
+
     def _create_snake(self) -> None:
         '''generate random snake position in board.'''
         self._snake: list = []
@@ -123,7 +120,7 @@ class Board():
         rand_col_pos: int = random.randint(3, self._size - 4)
         # append snake head
         self._snake.append((rand_row_pos, rand_col_pos))
-        # append 2 snake tails 
+        # append 2 snake tails
         if self._action == param.Action.LEFT.value:
             self._snake.append((rand_row_pos, rand_col_pos + 1))
             self._snake.append((rand_row_pos, rand_col_pos + 2))
@@ -175,14 +172,13 @@ class Board():
                     next_action == param.Action.LEFT.value):
                 return True
         return False
-    
+
     def _check_green_apple(self, next_action: int) -> bool:
         '''function to check move consume green apple'''
         next_row, next_col = self._get_next_pos(next_action)
         if self._board[next_row][next_col] == param.State.G_APPLE.value:
             return True
         return False
-    
 
     def _check_red_apple(self, next_action: int) -> bool:
         '''function to check move consume red apple'''
@@ -193,7 +189,7 @@ class Board():
 
     def _get_state(self) -> list:
         '''function to get line of view (state) of 4 actions from head of
-        snake. State values are INVERSE of [dist to wall, dist to first 
+        snake. State values are INVERSE of [dist to wall, dist to first
         green apple, dist to red apple, dist to tail]'''
         state: list = []
         # 4 actions following param.Action enum
@@ -381,7 +377,6 @@ class Board():
             self._snake: list = [(next_row, next_col), *temp_snake]
         # reset any food eaten to space
         self._board[next_row][next_col] = param.State.SPACE.value
-        
 
     def _print_state(self) -> None:
         "print state to terminal"
@@ -400,8 +395,6 @@ class Board():
                 else:
                     state += " "
             print(state)
-
-
 
     def move(self, next_action: int) -> list:
         '''function to change state of board upon a action move and return
@@ -429,7 +422,7 @@ class Board():
         elif self._check_green_apple(next_action) is True:
             self._amend_snake(next_action, "lengthen")
             self._create_apple(param.State.G_APPLE.value)
-            reward = param.Reward.G_APPLE.value 
+            reward = param.Reward.G_APPLE.value
         elif self._check_red_apple(next_action) is True:
             self._amend_snake(next_action, "shorten")
             self._create_apple(param.State.R_APPLE.value)
@@ -446,4 +439,3 @@ class Board():
             self._print_state()
         return [next_action, reward, fatal,
                 self._get_state()]
-

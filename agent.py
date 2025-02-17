@@ -1,4 +1,5 @@
-'''Agent Class definition using Deep Q Learning and e-greedy approach(exploration vs exploitation)'''
+'''Agent Class definition using Deep Q Learning and e-greedy approach
+(exploration vs exploitation)'''
 
 import random
 from collections import deque, Counter
@@ -7,6 +8,7 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
 import param
+
 
 class Snake_Agent():
     '''agent class'''
@@ -47,7 +49,7 @@ class Snake_Agent():
         # [next_state]] state
         self._replay_buffer: list[list] = []
         # attribute for loop circuit breaker
-        self._recent_states: deque = deque(maxlen = 100)
+        self._recent_states: deque = deque(maxlen=100)
         self._state_counter: Counter = Counter()
 
     @property
@@ -69,17 +71,17 @@ class Snake_Agent():
     def transfer_weight(self) -> int:
         '''getter for transfer weight'''
         return self._transfer_weight
- 
+
     @property
     def training(self) -> int:
         '''getter for training'''
         return self._training
- 
+
     @property
     def dontlearn(self) -> bool:
         '''getter for dontlearn'''
         return self._dontlearn
- 
+
     @dontlearn.setter
     def dontlearn(self, state: bool) -> None:
         '''setter for dontlearn'''
@@ -89,7 +91,7 @@ class Snake_Agent():
     def e(self) -> float:
         '''getter for epsilon'''
         return self._e
-    
+
     @e.setter
     def e(self, e) -> None:
         '''setter for epsilon'''
@@ -104,7 +106,7 @@ class Snake_Agent():
     def replay_buffer(self) -> list:
         '''getter for replay buffer'''
         return self._replay_buffer
-    
+
     @property
     def total_session(self) -> int:
         '''getter for total session'''
@@ -119,12 +121,12 @@ class Snake_Agent():
     def curr_session(self) -> int:
         '''getter for current session'''
         return self._curr_session
-    
+
     @curr_session.setter
     def curr_session(self, value) -> None:
         '''setter for current_session'''
         self._curr_session = value
-    
+
     def add_session(self, count: int) -> None:
         '''add session manually for initial state'''
         self._session += count
@@ -168,7 +170,6 @@ class Snake_Agent():
             # if exploitation, predict a list of 4 Q_target values for
             # each action and choose the max
             action = self._max_q_value(state)
-            
         if self._dontlearn is False:
             # append latest state to end of replay buffer
             # without action encoded input
@@ -219,22 +220,17 @@ class Snake_Agent():
 
     def _is_looping(self, state: list):
         state = self._hash_state(state)
-        
         # Update state frequency
         self._state_counter[state] += 1
         self._recent_states.append(state)
-        
         # Remove oldest state when deque is full
         if len(self._recent_states) == self._recent_states.maxlen:
             oldest_state = self._recent_states[0]
             self._state_counter[oldest_state] -= 1
             if self._state_counter[oldest_state] == 0:
                 del self._state_counter[oldest_state]  # Clean up memory
- 
         # Check if state occurs more than threshold
         return self._state_counter[state] > param.MAX_LOOP
-
-        
 
     def _train(self) -> None:
         '''training methodology'''
@@ -251,7 +247,6 @@ class Snake_Agent():
             # x = input states(distance for each action and
             # one hot encode action)
             x = [state[0] for state in random_sample]
-            
             # y = reward + future reward
             y = [(state[2] + ((self._discount * self._max_q_value(state[4]))
                               if len(state[4]) != 0 else 0))
@@ -265,7 +260,6 @@ class Snake_Agent():
             self._target_network.intercepts_ = [
                 np.copy(b) for b in self._main_network.intercepts_]
             self._transfer_weight += 1
-
 
     def action(self, info: list) -> int:
         '''outputs an action based on info passed by environment
@@ -287,10 +281,3 @@ class Snake_Agent():
             self._train()
             self._steps += 1
         return action
-
-
-
-
-
-
-

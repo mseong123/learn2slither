@@ -40,6 +40,7 @@ def define_args() -> argparse.Namespace:
     ))
     return parser.parse_args()
 
+
 def get_metrics(args: argparse.Namespace) -> dict:
     '''initialize variables to store program metrics'''
     metric: dict = {
@@ -52,6 +53,7 @@ def get_metrics(args: argparse.Namespace) -> dict:
     }
     return metric
 
+
 def reset_metrics(metric: dict, board: environ.Board) -> int:
     '''function to check max length of snake when session ends'''
     if board.final_length > metric["Max Length"]:
@@ -61,9 +63,10 @@ def reset_metrics(metric: dict, board: environ.Board) -> int:
     metric["Duration"] = 0
     metric["Session"] += 1
 
+
 def run_game_gui(board: environ.Board, snake_agent: agent.Snake_Agent,
-                  metric: dict, dontlearn: bool) -> None:
-    '''function to run game step by step using GUI''' 
+                 metric: dict, dontlearn: bool) -> None:
+    '''function to run game step by step using GUI'''
     if metric["Session"] == 0 and metric["Duration"] == 0:
         state = board.get_initial_state()
         action = snake_agent.action([state])
@@ -91,7 +94,6 @@ def run_game_gui(board: environ.Board, snake_agent: agent.Snake_Agent,
         if metric["Session"] == metric["Total Session"]:
             print(f"Game Over, max length = {metric["Max Length"]}, \
             max duration = {metric["Max Duration"]}")
-    
 
 
 def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
@@ -119,6 +121,7 @@ def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
                 reset_metrics(metric, board)
     print(f"Game Over, max length = {metric["Max Length"]},"
           f"max duration = {metric["Max Duration"]}")
+
 
 def main():
     '''main function to run program'''
@@ -196,4 +199,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
