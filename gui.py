@@ -366,19 +366,31 @@ def scale_image(image, screen_size):
     """Resize image to fit the screen."""
     return pygame.transform.scale(image, screen_size)
 
-def draw_lobby(image, screen) -> None:
+def draw_lobby_element(screen, login_button):
+    '''draw title and start button'''
+    size = screen.get_size()
+    font = pygame.font.Font(None, param.HEADER_SIZE * 2)
+    header = font.render("ALPHA SNAKE", True, param.ORANGE)
+    header_rect = header.get_rect(center=(
+        (size[0] - (param.HEADER_SIZE * 2)) // 2,
+        (size[1] - (param.HEADER_SIZE * 2)) // 2
+        ))
+    screen.blit(header, header_rect)
+    pygame.draw.rect(screen, param.ORANGE, login_button, border_radius=5) 
+    font = pygame.font.Font(None, int(param.HEADER_SIZE * 1.5))
+    header = font.render("START", True, param.WHITE)
+    header_rect = header.get_rect(center=(
+        (size[0] - param.BUTTON_WIDTH) // 2 + 10,
+        (((size[1] - param.BUTTON_HEIGHT) // 2) + (param.HEADER_SIZE * 2))
+        ))
+    screen.blit(header, header_rect)
+
+
+def draw_lobby(image, screen, event) -> None:
     '''draw lobby'''
-    for event in pygame.event.get():
-        # if window is closed
-        if event.type == pygame.QUIT:
-            return False
-        elif event.type == pygame.VIDEORESIZE:
-            screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-            image = scale_image(image, screen.get_size())
-    screen.blit(image, (0, 0))
-    pygame.display.flip()
-    return True
-         
+    screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+    image = scale_image(image, screen.get_size())
+    return image
 
 
 def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
@@ -399,9 +411,30 @@ def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
         )
     running: bool = True
     while running:
+        login_button = pygame.Rect(0, 0, param.BUTTON_WIDTH * 1.5,
+                                   param.BUTTON_HEIGHT * 1.5)
+        login_button.center = (
+            ((screen.get_size()[0] - param.BUTTON_WIDTH) // 2) + 15,
+            (((screen.get_size()[1] - param.BUTTON_HEIGHT) // 2) +
+             (param.HEADER_SIZE * 2))
+        )
         if board.lobby is True:
-            running = draw_lobby(lobby_image, screen)
-        else: 
+            for event in pygame.event.get():
+                # if window is closed
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+                elif event.type == pygame.VIDEORESIZE:
+                    lobby_image = draw_lobby(lobby_image, screen, event)
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if login_button.collidepoint(event.pos):
+                        board.lobby = False
+            screen.blit(lobby_image, (0, 0))
+            draw_lobby_element(screen, login_button)
+            pygame.display.flip()
+        else:
             screen.fill(param.BLACK)
             draw_board(screen, board)
             draw_snake(screen, board.snake)
