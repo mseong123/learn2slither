@@ -10,8 +10,7 @@ import param
 
 class Snake_Agent():
     '''agent class'''
-    def __init__(self, discount: float = 0.9,
-                 decay_scale: float = 0.01):
+    def __init__(self, discount: float = 0.9):
         '''init function'''
         # discount factor between 0.9 and 0.99 as per standard implementation
         # and remain constant throughout training
@@ -21,10 +20,8 @@ class Snake_Agent():
         self._curr_session: int = 0
         self._steps: int = 0
         self._speed: int = 1
-        self._decay_scale: float = decay_scale
-        self.a_decay_scale: float = 0
         self._random_float: float = random.random()
-        self._e: float = 1
+        self._e: float = param.DEFAULT_E
         # state of training at set interval to show at GUI
         self._training: int = 0
         # state of transferring weights to target network to show at GUI
@@ -115,10 +112,8 @@ class Snake_Agent():
 
     @total_session.setter
     def total_session(self, value) -> None:
-        '''setter for total_session
-        also adjust a_decay_scale when total value is given'''
+        '''setter for total_session'''
         self._total_session = value
-        self._a_decay_scale = self._decay_scale / value
 
     @property
     def curr_session(self) -> int:

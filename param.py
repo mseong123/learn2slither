@@ -38,8 +38,6 @@ LOOP: dict = {
 # like cartwheel (simple problem) and atari DQN(more complex)
 # All the params below are based on simple problem ie cartwheel
 RANDOM_STATE = 42
-# quite evenly scaled across total sessions with min 0.1
-DECAY_SCALE = 0.0005
 # MAX_BATCH_SIZE
 MAX_BATCH_HUNDRED = 48
 # TRAIN FREQUENCY (no of steps)
@@ -79,6 +77,3 @@ class Action(Enum):
     DOWN = 1
     LEFT = 2
     RIGHT = 3
-
-
-

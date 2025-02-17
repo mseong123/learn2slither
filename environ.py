@@ -429,8 +429,8 @@ class Board():
             self._action = next_action
             if self._gui is True:
                 print(f"\n{param.Action(next_action).name}\n")
-        # if self._gui is True:
-            # self._print_state()
+        if self._gui is True:
+            self._print_state()
         return [next_action, reward, fatal,
                 self._get_state()]
 

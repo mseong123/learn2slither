@@ -38,9 +38,6 @@ def define_args() -> argparse.Namespace:
         "board size (not including walls). Min size = 10\n"
         "default = 10 grid"
     ))
-    parser.add_argument("--e", type=float, help=(
-        f"epsilon value. Max size = 1. Min size = {param.MIN_E}\n"
-    ))
     return parser.parse_args()
 
 def get_metrics(args: argparse.Namespace) -> dict:
@@ -134,24 +131,19 @@ def main():
     snake_agent: agent.Snake_Agent | None = None
     args: argparse.Namespace = define_args()
     metric: dict = get_metrics(args)
-    board: environ.Board = environ.Board(size=args.boardsize)
     # ------------------------------------------------------
     # ERROR CHECKING OF ARGUMENT COMBINATIONS
     # At minimum need grid size of 5 since subject.pdf snake have length of 3
     if args.boardsize < 5:
         print("Board size too small. Minimum = 5 grid")
         return
+    board: environ.Board = environ.Board(size=args.boardsize)
     # at minimum need to provide no. of sessions to run a program, all
     # other flags are optional
     if args.sessions is None:
         print("Please provide no. of sessions to run")
         return
     metric["Total Session"] = args.sessions
-    # epsilon range
-    if args.e is not None and (args.e > 1
-                               or args.e < param.MIN_E):
-        print(f"epsilon has to be <= 1 and >= {param.MIN_E}")
-        return
     if args.dontlearn is True and args.save is not None:
         print("can't save model when dontlearn option is enabled")
         return
@@ -159,7 +151,7 @@ def main():
     # INITIALIZE MODEL
     if args.load is None:
         # if no loading argument, create a new agent instance
-        snake_agent = agent.Snake_Agent(decay_scale=param.DECAY_SCALE)
+        snake_agent = agent.Snake_Agent()
     else:
         if os.path.exists(args.load):
             with open(args.load, "rb") as file:
@@ -175,9 +167,6 @@ def main():
     else:
         snake_agent.dontlearn = False
         snake_agent.e = param.DEFAULT_E
-    # can set epsilon manually ie if want to continue training on another board
-    if args.e is not None:
-        snake_agent.e = args.e
     # set current session and total session for this program run
     # in snake instance for purpose of decaying epsilon
     snake_agent.total_session = args.sessions
