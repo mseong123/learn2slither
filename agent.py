@@ -107,6 +107,11 @@ class Snake_Agent():
         '''getter for replay buffer'''
         return self._replay_buffer
 
+    @replay_buffer.setter
+    def replay_buffer(self, value: list) -> None:
+        '''setter for replay buffer'''
+        self._replay_buffer = value
+
     @property
     def total_session(self) -> int:
         '''getter for total session'''

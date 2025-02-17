@@ -101,7 +101,7 @@ def run_game(board: environ.Board, snake_agent: agent.Snake_Agent,
     '''function to run game between environ(board) and agents'''
     state: list = []
     action: int = 0
-    while metric["Session"] <= metric["Total Session"]:
+    while metric["Session"] < metric["Total Session"]:
         if metric["Session"] == 0 and metric["Duration"] == 0:
             state = board.get_initial_state()
             action = snake_agent.action([state])
@@ -146,6 +146,9 @@ def main():
     if args.sessions is None:
         print("Please provide no. of sessions to run")
         return
+    if args.sessions < 1:
+        print("Please provide > 0 session")
+        return
     metric["Total Session"] = args.sessions
     if args.dontlearn is True and args.save is not None:
         print("can't save model when dontlearn option is enabled")
@@ -188,10 +191,13 @@ def main():
     else:
         run_game(board, snake_agent, metric, args)
     if args.save is not None:
-        for i in range(len(snake_agent.replay_buffer) - 1,
-                       len(snake_agent.replay_buffer) - 10, -1):
-            if len(snake_agent.replay_buffer[i]) != 5:
-                del snake_agent.replay_buffer[i]
+        if len(snake_agent.replay_buffer) > 10:
+            for i in range(len(snake_agent.replay_buffer) - 1,
+                           len(snake_agent.replay_buffer) - 10, -1):
+                if len(snake_agent.replay_buffer[i]) != 5:
+                    del snake_agent.replay_buffer[i]
+        else:
+            snake_agent.replay_buffer = []
         with open(f"{args.save}", "wb") as file:
             pickle.dump(snake_agent, file)
         print(f"Save learning state in {args.save}")

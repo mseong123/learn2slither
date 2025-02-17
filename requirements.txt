@@ -1,0 +1,10 @@
+flake8==7.1.2
+joblib==1.4.2
+mccabe==0.7.0
+numpy==2.2.2
+pycodestyle==2.12.1
+pyflakes==3.2.0
+pygame==2.6.1
+scikit-learn==1.6.1
+scipy==1.15.1
+threadpoolctl==3.5.0
