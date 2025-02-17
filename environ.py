@@ -13,6 +13,7 @@ class Board():
         self._board: list = []
         self._final_length: int = 0
         self._snake: list = []
+        self._lobby: bool = True
         self._action: int = random.randint(0, len(param.Action) - 1)
         self._prev_action: int | None = None
         self._state: list = []
@@ -56,10 +57,21 @@ class Board():
     def action(self) -> int:
         '''getter for current action'''
         return self._action
+
     @property
     def final_length(self) -> list:
         '''getter for final length attribute'''
         return self._final_length
+
+    @property
+    def lobby(self) -> bool:
+        '''getter for lobby attribute'''
+        return self._lobby
+    
+    @lobby.setter
+    def lobby(self, value: bool) -> None:
+        '''setter for gui option'''
+        self._lobby = value
 
     def reset_board(self) -> None:
         '''wrapper function to reset board and snake'''
@@ -388,6 +400,7 @@ class Board():
                 else:
                     state += " "
             print(state)
+
 
 
     def move(self, next_action: int) -> list:

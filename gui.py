@@ -362,6 +362,24 @@ def draw_game_over(screen: pygame.Surface, pixel_size: int) -> None:
     )
     screen.blit(game_over_font, game_over_font_rect)
 
+def scale_image(image, screen_size):
+    """Resize image to fit the screen."""
+    return pygame.transform.scale(image, screen_size)
+
+def draw_lobby(image, screen) -> None:
+    '''draw lobby'''
+    for event in pygame.event.get():
+        # if window is closed
+        if event.type == pygame.QUIT:
+            return False
+        elif event.type == pygame.VIDEORESIZE:
+            screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+            image = scale_image(image, screen.get_size())
+    screen.blit(image, (0, 0))
+    pygame.display.flip()
+    return True
+         
+
 
 def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
              snake_agent: agent.Snake_Agent):
@@ -374,27 +392,35 @@ def init_gui(board: environ.Board, args: argparse.Namespace, metric: dict,
         set_mode(size=(pixel_size + (param.CELL_SIZE * param.SIDE_OFFSET),
                        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2)),
                  flags=pygame.RESIZABLE)
+    lobby_image = pygame.image.load(param.LOGO_URL)
+    lobby_image = scale_image(lobby_image, (
+        pixel_size + (param.CELL_SIZE * param.SIDE_OFFSET),
+        pixel_size + (param.CELL_SIZE * param.EDGE_OFFSET * 2))
+        )
     running: bool = True
     while running:
-        screen.fill(param.BLACK)
-        draw_board(screen, board)
-        draw_snake(screen, board.snake)
-        buttons = draw_console(screen, args, pixel_size)
-        draw_metric(screen, metric, pixel_size, snake_agent,
-                    args.dontlearn, board)
-        if metric["Session"] == metric["Total Session"]:
-            draw_game_over(screen, pixel_size)
-        running = event_handler(board, buttons, metric,
-                                snake_agent, args.dontlearn)
-        if args.step_by_step is False and\
-           metric["Session"] < metric["Total Session"]:
-            param.LOOP["count"] += 1
-            if param.LOOP["count"] ==\
-               (param.LOOP["limit"] // metric["Speed"]):
-                snake.run_game_gui(board, snake_agent,
-                                   metric, args.dontlearn)
-                param.LOOP["count"] = 0
-        pygame.display.flip()
-        height_pixel = 0
+        if board.lobby is True:
+            running = draw_lobby(lobby_image, screen)
+        else: 
+            screen.fill(param.BLACK)
+            draw_board(screen, board)
+            draw_snake(screen, board.snake)
+            buttons = draw_console(screen, args, pixel_size)
+            draw_metric(screen, metric, pixel_size, snake_agent,
+                        args.dontlearn, board)
+            if metric["Session"] == metric["Total Session"]:
+                draw_game_over(screen, pixel_size)
+            running = event_handler(board, buttons, metric,
+                                    snake_agent, args.dontlearn)
+            if args.step_by_step is False and\
+            metric["Session"] < metric["Total Session"]:
+                param.LOOP["count"] += 1
+                if param.LOOP["count"] ==\
+                (param.LOOP["limit"] // metric["Speed"]):
+                    snake.run_game_gui(board, snake_agent,
+                                    metric, args.dontlearn)
+                    param.LOOP["count"] = 0
+            pygame.display.flip()
+            height_pixel = 0
     # explicitly clean up resources once loop ends (ie close window)
     pygame.quit()

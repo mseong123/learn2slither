@@ -31,6 +31,7 @@ LOOP: dict = {
     "count": 0,
     "limit": 60,
 }
+LOGO_URL: str = "./snake_logo.png"
 
 # Agent hyperparams - based on how complex environment is,
 # empirical data and rule of thumb. No real definite answer
