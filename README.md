@@ -16,9 +16,9 @@ This project aims to introduce the concept of Reinforcement Learning which is a 
 
 The Q function is in the form of Bellman equation:
 
-          Q(s) = Reward + Discount( max Q(s+1)
+          Q(s) = Reward + Discount_rate( max Q(s+1) )
           
-The Q 
+The above equation shows that the Q value comprises of current reward (provided by the environment) + delayed rewards. This is exemplification of sequential decision making where agent makes a series of decision over time and they impact each others states and rewards. Learned Q values from interacting with the environment through the reward mechanism is propagated through all the states in the second part of the equation above. A well trained agent in theory can forgo immediate rewards for future rewards. Ie don't take a food to stay alive for longer.
 
 
 
