@@ -16,7 +16,7 @@ This project aims to introduce the concept of Reinforcement Learning which is a 
 
 The Q function is in the form of Bellman equation:
 
-          `Q(s) = Reward + Discount( max Q(s+1)`
+          Q(s) = Reward + Discount( max Q(s+1)
           
 The Q 
 
