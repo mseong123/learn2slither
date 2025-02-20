@@ -69,11 +69,30 @@ In the snake game, the agent's view is limited to 4 direction from it's head, he
 <br/>
 
 ### Run model
+
+Clone repository
+
+#### Install dependencies
+```
+pip install -r requirements.txt
+```
 ```
 python snake.py <arguments>
 ```
 #### Valid arguments
  - --help => show list of available arguments
+ - --sessions => no. of sessions to run the program (1 session is snake will move until it dies). This argument is mandatory.
+ - --visual => `on` for GUI. Can increase or decrease speed of game.
+ - --step-by-step => option only for GUI where snake only move when button is click.
+ - --boardsize => controls what grid size of board. Minimum is 5. Default is 10 if this argument not provided.
+ - --dontlearn => option to test performance of agent where exploration is turn off.
+ - --save => save model to a directory
+ - --load => load model to directory
+
+There are several models (trained to various degrees) saved in model/ folder. To load a fully trained agent (in model/ folder) and test it on grid size of 10:
+```
+python snake.py --sessions 10 --load ./model/2_5kgrid57891011.pk --visual on --boardsize 10 --dontlearn
+```
 
 
 
