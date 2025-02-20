@@ -46,13 +46,14 @@ The above equation shows that the Q value comprises of current reward (provided 
 1.  ![grid5](https://github.com/mseong123/learn2slither/blob/main/images/grid6.png)
     - Agent starts again from initial position and moves right. Q value = -1 (current reward) + 1 (19) = 18
 
-Hence from the above, we can see that if the agent travels and learns enough it will learn that turning right (with Q value of 18) will get it to a food. 
-
-### Deep Q Learning
-
-
-In the snake game, my agent's view is limited to 4 direction from it's head, hence I encoded my state to be [dis to wall, dist to good food dist to bad food, dist to tail] for each of the 4 directions and one hot encoded the direction of the snake hence I would have an array of 20 elements for each state. 
+Hence from the above, we can see that if the agent travels through the grid/states multiple times, it will learn that turning right (with Q value of 18) will get it to a food and if it train over multiple cycles, it will find an optimum route to maximise it's length and not die at the same time.
 
 ![Q_Learning](https://github.com/mseong123/learn2slither/blob/main/images/Q_learning.png)
 
-*Figure 1: Q-Learning*
+*Figure showing how the environment interacts with the agent*
+
+### Deep Q Learning
+
+In the snake game, the agent's view is limited to 4 direction from it's head, hence I encoded my state to be [dis to wall, dist to good food dist to bad food, dist to tail] for each of the 4 directions and one hot encoded the direction of the snake hence I would have an array of 20 elements for each state. The distances are normalized relation to grid size hence their values are between 0 and 1. This ensures that the agent can generalize well and work on board of any grid size. Since the values in my state is a continuous variable, neural network is best suitable to approximate the Q value instead of using a Q table as the state space is large (potentially infinite) and the agent wouldn't be able to visit the states enough times to update the Q values. 
+
+
