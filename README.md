@@ -66,6 +66,15 @@ In the snake game, the agent's view is limited to 4 direction from it's head, he
 4. Reward structure is highly important. Too low rewards, agent doesn't learn enough since signal is weak. Too high rewards, will produce unexpected behaviors (skew the results). Ie To encourage snake to move around, I initially gave +1 reward when moving to an empty space, however the accumulation of Q values moving in empty spaces overwhelmed the signal of food rewards resulting in agent moving around randomly without picking up food.
 5. Exploration is important to prevent overfitting and able to navigate well in a sparse reward environment (ie 15 x 15 grid with only 2 food at each time)
 
+<br/>
+
+### Run model
+```
+python snake.py <arguments>
+```
+#### Valid arguments
+ - --help => show list of available arguments
+
 
 
 
