@@ -5,7 +5,7 @@
   <img src="https://github.com/mseong123/learn2slither/blob/main/images/game.png" alt="Gameplay" style="width: 45%;"/>
 </div>
 
-
+<br>
 
 ![Q_Learning](https://github.com/mseong123/learn2slither/blob/main/images/Q_learning.png)
 
