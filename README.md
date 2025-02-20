@@ -8,6 +8,8 @@
 <br/>
 <hr/>
 
+### Introduction
+
 This project aims to introduce the concept of Reinforcement Learning which is a machine learning algorithm that allows an agent to learn through numerous trial and error using a reward/penalty mechanism to find an optimum solution to a problem set. Q(uality) learning aims to learn a Q-value for each action at every state and the Q-value gets updated when the agent goes through the state again multiple times through an exploration/exploitation mechanism. The purpose of a Q-value is for to evaluate the 'quality' of a certain action at a state. 
 
 ### Q-function
