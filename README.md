@@ -22,7 +22,12 @@ The above equation shows that the Q value comprises of current reward (provided 
 
 ### Illustration of Q value propagation using the Bellman Equation:
 
-![grid1](https://github.com/mseong123/learn2slither/blob/main/images/grid1.png)
+#### First Session
+1. ![grid1](https://github.com/mseong123/learn2slither/blob/main/images/grid1.png)
+   - For this illustration purpose:
+   - Food reward: +20, Empty spaces penalty: -1 (to penalize agent for taking unneccesary steps), discount rate: 1 (for ease of illustration calculation)
+2.  ![grid2](https://github.com/mseong123/learn2slither/blob/main/images/grid2.png)
+3.  ![grid3](https://github.com/mseong123/learn2slither/blob/main/images/grid3.png)
 
 
 
