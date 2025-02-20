@@ -1,8 +1,11 @@
 # learn2slither | 42KL
 
+<div style="display: flex; justify-content: center;">
+  <img src="https://github.com/mseong123/learn2slither/blob/main/images/lobby.png" alt="Lobby" style="width: 45%; margin-right: 10px;"/>
+  <img src="[image2.png](https://github.com/mseong123/learn2slither/blob/main/images/game.png)" alt="Gameplay" style="width: 45%;"/>
+</div>
 
-
-| ![Lobby](https://github.com/mseong123/learn2slither/blob/main/images/lobby.png) | ![Game](https://github.com/mseong123/learn2slither/blob/main/images/game.png) |
+| ![Lobby](https://github.com/mseong123/learn2slither/blob/main/images/lobby.png) | ![Game](https://github.com/mseong123/learn2slither/blob/main/images/Q_learning.png) |
 | *Lobby* | *Game* |
 
 
