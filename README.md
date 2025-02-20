@@ -2,8 +2,7 @@
 
 
 
-| ![Lobby](https://github.com/mseong123/learn2slither/blob/main/images/Lobby.png) | ![Game](https://github.com/mseong123/learn2slither/blob/main/images/Game.png) |
-
+| ![Lobby](https://github.com/mseong123/learn2slither/blob/main/images/lobby.png) | ![Game](https://github.com/mseong123/learn2slither/blob/main/images/game.png) |
 | *Lobby* | *Game* |
 
 
