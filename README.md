@@ -18,7 +18,7 @@ The Q function is in the form of Bellman equation:
 
           Q(s) = Reward + Discount_rate( max Q(s+1) )
           
-The above equation shows that the Q value comprises of current reward (provided by the environment) + delayed/future rewards. This is exemplification of sequential decision making where agent makes a series of decision over time and they impact each others states and rewards. Learned Q values from interacting with the environment through the reward mechanism is propagated through all the states in the second part of the equation above. A well trained agent in theory can forgo immediate rewards for future rewards. Ie don't take a food to stay alive for longer.
+The above equation shows that the Q value comprises of current reward (provided by the environment) + delayed/future rewards. This is exemplification of sequential decision making where agent makes a series of decision over time and they impact each others states and rewards. Learned Q values from interacting with the environment through the reward mechanism is propagated through all the states in the second part of the equation above. A well-trained agent can learn complex behaviors. For example, in theory, it can forgo immediate rewards for future rewards  ie don't take a food to stay alive for longer.
 
 ### Simple illustration of how Q learning works and how Q value future value propagates using the Bellman Equation:
 
