@@ -43,7 +43,7 @@ The above equation shows that the Q value comprises of current reward (provided 
 
 #### Third Session
 
-1.  ![grid5](https://github.com/mseong123/learn2slither/blob/main/images/grid7.png)
+1.  ![grid7](https://github.com/mseong123/learn2slither/blob/main/images/grid7.png)
     - Agent starts again from initial position and moves right. Q value = -1 (current reward) + 1 (19) = 18
 
 Hence from the above, we can see that if the agent travels through the grid/states multiple times, it will learn that turning right (with Q value of 18) will get it to a food and if it train over multiple cycles, it will find an optimum route to maximise it's length and not die at the same time.
