@@ -65,6 +65,9 @@ In the snake game, the agent's view is limited to 4 direction from it's head, he
    - More training ≠ better performance. I found that an agent trained on a grid size of 7 for 2500 episodes and then trained on a grid size of 10 for 40000 episodes performs worse than an agent trained 2500 episodes on a grid size of 5,7,8,9,10 (totalling 12500 episodes). Key findings is train on an initial set of parameters first to stabilize training and observe improved performance then gradually expand the training on other parameters..
 4. Reward structure is highly important. Too low rewards, agent doesn't learn enough since signal is weak. Too high rewards, will produce unexpected behaviors (skew the results). Ie To encourage snake to move around, I initially gave +1 reward when moving to an empty space, however the accumulation of Q values moving in empty spaces overwhelmed the signal of food rewards resulting in agent moving around randomly without picking up food.
 5. Exploration is important to prevent overfitting and able to navigate well in a sparse reward environment (ie 15 x 15 grid with only 2 food at each time)
+6. Q-tables might be sufficient for this project using just simple encoding of states like binary for apples, and binary for whether next action is a wall/tail (which will end the session). The number of states should be sufficient to train the agent. Hence using a Neural Network might be overengineering the agent without the reciprocal improvement in performance. However I suspect that the agent would not be able to learn more complex behaviors but no way to find out until actual implementation.
+
+FINAL SCORE 120 / 100.
 
 <br/>
 
